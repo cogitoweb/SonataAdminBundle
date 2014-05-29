@@ -271,6 +271,7 @@ class HelperController
         $propertyAccessor->setValue($object, $propertyPath, '' !== $value ? $value : null);
 
         // 2z -> hack
+        // from
         // https://github.com/sonata-project/SonataAdminBundle/issues/1931
         //$violations = $this->validator->validateProperty($object, $field);
         $violations = $this->validator->validate($object);
