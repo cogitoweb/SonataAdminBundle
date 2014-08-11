@@ -366,14 +366,20 @@ class HelperController
                     $filter = $datagrid->getFilter($prop);
                     $filter->setCondition(FilterInterface::CONDITION_OR);
 
-                    $datagrid->setValue($prop, null, $searchText);
+                    // 2z -> hack per gestire i nomi delle prop con il .
+                    $value_prop = str_replace('.', '__', $prop);
+                    
+                    $datagrid->setValue($value_prop, null, $searchText);
                 }
             } else {
                 if (!$datagrid->hasFilter($property)) {
-                    throw new \RuntimeException(sprintf('To retrieve autocomplete items, you should add filter "%s" to "%s" in configureDatagridFilters() method.', $prop, get_class($targetAdmin)));
+                    throw new \RuntimeException(sprintf('To retrieve autocomplete items, you should add filter "%s" to "%s" in configureDatagridFilters() method.', $property, get_class($targetAdmin)));
                 }
 
-                $datagrid->setValue($property, null, $searchText);
+                // 2z -> hack per gestire i nomi delle prop con il .
+                $value_prop = str_replace('.', '__', $property);
+                
+                $datagrid->setValue($value_prop, null, $searchText);
             }
         }
 
