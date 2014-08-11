@@ -92,7 +92,9 @@ class HelperController
 
         $admin->setSubject($subject);
 
-        list($fieldDescription, $form) = $this->helper->appendFormFieldElement($admin, $subject, $elementId);
+        // CGT FB second level nested collection
+        // list($fieldDescription, $form) = $this->helper->appendFormFieldElement($admin, $subject, $elementId);
+        $form = $this->helper->appendFormFieldElement($admin, $subject, $elementId);
 
         /** @var $form \Symfony\Component\Form\Form */
         $view = $this->helper->getChildFormView($form->createView(), $elementId);
@@ -309,22 +311,10 @@ class HelperController
      *
      * @throws \RuntimeException
      * @throws AccessDeniedException
-     * @throws HttpException
      */
     public function retrieveAutocompleteItemsAction(Request $request)
     {
-        $searchText = $request->get('q');
-        $page       = $request->get('page');
-        // $limit      = $request->get('limit'); //do not trust user limit, use defined limit from form options
-        $code       = $request->get('code');
-        $field      = $request->get('field');
-
-        if (!$request->isXmlHttpRequest()) {
-            // Expected a XmlHttpRequest request header
-            throw new HttpException(403, 'Forbidden');
-        }
-
-        $admin = $this->pool->getInstance($code);
+        $admin = $this->pool->getInstance($request->get('code'));
         $admin->setRequest($request);
 
         // check user permission
@@ -333,11 +323,106 @@ class HelperController
         }
 
         // subject will be empty to avoid unnecessary database requests and keep autocomplete function fast
-        $subject = $admin->getNewInstance();
-        $admin->setSubject($subject);
+        $admin->setSubject($admin->getNewInstance());
 
-        // build form
-        $form = $admin->getForm();
+        $fieldDescription = $this->retrieveFieldDescription($admin, $request->get('field'));
+        $formAutocomplete = $admin->getForm()->get($fieldDescription->getName());
+
+        if ($formAutocomplete->getConfig()->getAttribute('disabled')) {
+            throw new AccessDeniedException('Autocomplete list can`t be retrieved because the form element is disabled or read_only.');
+        }
+
+        $property           = $formAutocomplete->getConfig()->getAttribute('property');
+        $callback           = $formAutocomplete->getConfig()->getAttribute('callback');
+        $minimumInputLength = $formAutocomplete->getConfig()->getAttribute('minimum_input_length');
+        $itemsPerPage       = $formAutocomplete->getConfig()->getAttribute('items_per_page');
+        $reqParamPageNumber = $formAutocomplete->getConfig()->getAttribute('req_param_name_page_number');
+        $toStringCallback   = $formAutocomplete->getConfig()->getAttribute('to_string_callback');
+
+        $searchText = $request->get('q');
+
+        if (mb_strlen($searchText, 'UTF-8') < $minimumInputLength) {
+            return new JsonResponse(array('status' => 'KO', 'message' => 'Too short search string.', 403));
+        }
+
+        $targetAdmin = $fieldDescription->getAssociationAdmin();
+        $datagrid = $targetAdmin->getDatagrid();
+
+        if ($callback !== null) {
+            if (!is_callable($callback)) {
+                throw new \RuntimeException('Callback doesn`t contain callable function.');
+            }
+
+            call_user_func($callback, $datagrid, $property, $searchText);
+        } else {
+            if (is_array($property)) {
+                // multiple properties
+                foreach ($property as $prop) {
+                    if (!$datagrid->hasFilter($prop)) {
+                        throw new \RuntimeException(sprintf('To retrieve autocomplete items, you should add filter "%s" to "%s" in configureDatagridFilters() method.', $prop, get_class($targetAdmin)));
+                    }
+
+                    $filter = $datagrid->getFilter($prop);
+                    $filter->setCondition(FilterInterface::CONDITION_OR);
+
+                    $datagrid->setValue($prop, null, $searchText);
+                }
+            } else {
+                if (!$datagrid->hasFilter($property)) {
+                    throw new \RuntimeException(sprintf('To retrieve autocomplete items, you should add filter "%s" to "%s" in configureDatagridFilters() method.', $prop, get_class($targetAdmin)));
+                }
+
+                $datagrid->setValue($property, null, $searchText);
+            }
+        }
+
+        $datagrid->setValue('_per_page', null, $itemsPerPage);
+        $datagrid->setValue('_page', null, $request->query->get($reqParamPageNumber, 1));
+        $datagrid->buildPager();
+
+        $pager = $datagrid->getPager();
+
+        $items = array();
+        $results = $pager->getResults();
+
+        foreach ($results as $entity) {
+            if ($toStringCallback !== null) {
+                if (!is_callable($toStringCallback)) {
+                    throw new \RuntimeException('Option "to_string_callback" doesn`t contain callable function.');
+                }
+
+                $label = call_user_func($toStringCallback, $entity, $property);
+            } else {
+                $resultMetadata = $targetAdmin->getObjectMetadata($entity);
+                $label = $resultMetadata->getTitle();
+            }
+
+            $items[] = array(
+                'id'    => $admin->id($entity),
+                'label' => $label,
+            );
+        }
+
+        return new JsonResponse(array(
+            'status' => 'OK',
+            'more'   => !$pager->isLastPage(),
+            'items'  => $items
+        ));
+    }
+
+    /**
+     * Retrieve the field description given by field name.
+     *
+     * @param AdminInterface $admin
+     * @param string         $field
+     *
+     * @return \Symfony\Component\Form\FormInterface
+     *
+     * @throws \RuntimeException
+     */
+    private function retrieveFieldDescription(AdminInterface $admin, $field)
+    {
+        $admin->getFormFieldDescriptions();
 
         $fieldDescription = $admin->getFormFieldDescription($field);
 
@@ -345,77 +430,15 @@ class HelperController
             throw new \RuntimeException(sprintf('The field "%s" does not exist.', $field));
         }
 
+        // 2z -> per autocomplete
         if ($fieldDescription->getType() !== 'sonata_type_model_autocomplete') {
             throw new \RuntimeException(sprintf('Unsupported form type "%s" for field "%s".', $fieldDescription->getType(), $field));
         }
 
-        $modelManager = $admin->getModelManager();
-
-        // get name of associated entity class
-        $mapping = $fieldDescription->getAssociationMapping();
-
-        if (!isset($mapping['targetEntity'])) {
+        if (null === $fieldDescription->getTargetEntity()) {
             throw new \RuntimeException(sprintf('No associated entity with field "%s".', $field));
         }
 
-        $class = $mapping['targetEntity'];
-
-        $formAutocomplete = $form->get($fieldDescription->getName());
-
-        if ($formAutocomplete->getConfig()->getAttribute('disabled')) {
-            throw new AccessDeniedException('Autocomplete list can`t be retrieved because the form element is disabled or read_only.');
-        }
-
-        $property = $formAutocomplete->getConfig()->getAttribute('property');
-        $callback = $formAutocomplete->getConfig()->getAttribute('callback');
-        $minimumInputLength = $formAutocomplete->getConfig()->getAttribute('minimum_input_length');
-        $limit = $formAutocomplete->getConfig()->getAttribute('items_per_page');
-        $searchType = $formAutocomplete->getConfig()->getAttribute('search_type');
-
-        if ($page < 1) {
-            $page = 1;
-        }
-
-        $offset = ($page-1)*$limit;
-
-        if (mb_strlen($searchText, 'UTF-8') < $minimumInputLength) {
-            return new JsonResponse(array('status' => 'KO', 'message' => 'Too short search string.'));
-        }
-
-        $alias = 'o';
-        $queryBuilder = $modelManager->getEntityManager($class)->createQueryBuilder();
-        $modelManager->getLikeQuery($queryBuilder, $class, $alias, $property, $searchText, $searchType);
-
-        if ($callback !== null) {
-            if (!is_callable($callback)) {
-                throw new \RuntimeException('Callback doesn`t contain callable function.');
-            }
-
-            call_user_func($callback, $queryBuilder, $alias, $property, $searchText);
-        }
-
-        // limit number of results
-        $queryBuilder->setFirstResult($offset)
-            ->setMaxResults($limit+1); // +1 row so we can detect if there are more items or not
-
-        $results = $queryBuilder->getQuery()->getResult();
-
-        $propertyGetter = 'get'.ucfirst($property);
-
-        $items = array();
-        $i = 0;
-
-        foreach ($results as $object) {
-            $i++;
-
-            // ignore last item
-            if ($i > $limit) {
-                break;
-            }
-
-            $items[] = array('id'=>current($modelManager->getIdentifierValues($object)), 'title'=>( call_user_func(array($object, $propertyGetter))));
-        }
-
-        return new JsonResponse(array('status' => 'OK', 'more'=>(count($results) == $limit+1), 'items' => $items));
+        return $fieldDescription;
     }
 }

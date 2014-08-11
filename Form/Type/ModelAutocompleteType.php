@@ -14,7 +14,6 @@ namespace Sonata\AdminBundle\Form\Type;
 
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\Form\FormInterface;
@@ -24,31 +23,27 @@ use Sonata\AdminBundle\Form\DataTransformer\ModelToIdPropertyTransformer;
  * This type defines a standard text field with autocomplete feature.
  *
  * @author Andrej Hudec <pulzarraider@gmail.com>
+ * @author Florent Denis <dflorent.pokap@gmail.com>
  */
 class ModelAutocompleteType extends AbstractType
 {
-    const SEARCH_TYPE_BEGINS_WITH = 'begins_with';
-    const SEARCH_TYPE_CONTAINS = 'contains';
-    const SEARCH_TYPE_ENDS_WITH = 'ends_with';
-
     /**
      * {@inheritDoc}
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder
-                ->addViewTransformer(new ModelToIdPropertyTransformer($options['model_manager'], $options['class'], $options['property'], $options['multiple']), true)
-        ;
+        $builder->addViewTransformer(new ModelToIdPropertyTransformer($options['model_manager'], $options['class'], $options['property'], $options['multiple'], $options['to_string_callback']), true);
 
-        $builder->add('title', 'text', array('attr'=>array('class'=>'span5'), 'property_path' => '[titles][0]'));
+        $builder->add('title', 'text', array('attr'=>array('class'=>'span5'), 'property_path' => '[labels][0]'));
         $builder->add('identifiers', 'collection', array('type'=>'hidden', 'allow_add' => true, 'allow_delete' => true));
 
         $builder->setAttribute('property', $options['property']);
         $builder->setAttribute('callback', $options['callback']);
         $builder->setAttribute('minimum_input_length', $options['minimum_input_length']);
         $builder->setAttribute('items_per_page', $options['items_per_page']);
-        $builder->setAttribute('search_type', $options['search_type']);
+        $builder->setAttribute('req_param_name_page_number', $options['req_param_name_page_number']);
         $builder->setAttribute('disabled', $options['disabled'] || $options['read_only']);
+        $builder->setAttribute('to_string_callback', $options['to_string_callback']);
     }
 
     /**
@@ -67,7 +62,7 @@ class ModelAutocompleteType extends AbstractType
         $view->vars['req_params'] = $options['req_params'];
         $view->vars['req_param_name_search'] = $options['req_param_name_search'];
         $view->vars['req_param_name_page_number'] = $options['req_param_name_page_number'];
-        $view->vars['req_param_name_page_limit'] = $options['req_param_name_page_limit'];
+        $view->vars['req_param_name_items_per_page'] = $options['req_param_name_items_per_page'];
 
         // dropdown list css class
         $view->vars['dropdown_css_class'] = $options['dropdown_css_class'];
@@ -82,26 +77,28 @@ class ModelAutocompleteType extends AbstractType
             'compound'                        => true,
             'model_manager'                   => null,
             'class'                           => null,
-            'property'                        => null,
             'callback'                        => null,
-            'search_type'                     => self::SEARCH_TYPE_CONTAINS,
             'multiple'                        => false,
 
             'placeholder'                     => '',
             'minimum_input_length'            => 3, //minimum 3 chars should be typed to load ajax data
             'items_per_page'                  => 10, //number of items per page
 
+            'to_string_callback'              => null,
+
             // ajax parameters
             'url'                             => '',
             'route'                           => array('name'=>'sonata_admin_retrieve_autocomplete_items', 'parameters'=>array()),
             'req_params'                      => array(),
             'req_param_name_search'           => 'q',
-            'req_param_name_page_number'      => 'page',
-            'req_param_name_page_limit'       => 'limit',
+            'req_param_name_page_number'      => '_page',
+            'req_param_name_items_per_page'   => '_per_page',
 
             // dropdown list css class
             'dropdown_css_class'              => 'sonata-autocomplete-dropdown',
         ));
+
+        $resolver->setRequired(array('property'));
     }
 
     /**
