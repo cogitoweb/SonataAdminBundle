@@ -27,7 +27,7 @@ class AdminHelper
         $this->pool = $pool;
     }
 
-    /**   
+    /**
      * @param \Symfony\Component\Form\FormView $formView
      * @param string                           $elementId
      *
@@ -70,35 +70,34 @@ class AdminHelper
         // retrieve the subject
         $form = $admin->getFormBuilder()->getForm();
         $form->setData($subject);
-        $form->bind($admin->getRequest());
-        
+        $form->submit($admin->getRequest());
+
         $elementId = preg_replace('#.(\d+)#', '[$1]', implode('.', explode('_', substr($elementId, strpos($elementId, '_') + 1))));
         // append a new instance into the object
         $this->addNewInstance($admin, $elementId);
-        
+
         // return new form with empty row
         $finalForm = $admin->getFormBuilder()->getForm();
         $finalForm->setData($subject);
-
         $finalForm->setData($form->getData());
 
         return $finalForm;
     }
 
     /**
-     * Add a new instance to the related FieldDescriptionInterface value
+     * Add a new instance
      *
      * @param AdminInterface $admin
-     * @param string $elementId
+     * @param string         $elementId
      *
      * @throws \RuntimeException
      */
     protected function addNewInstance(AdminInterface $admin, $elementId)
     {
         $entity = $admin->getSubject();
-
         $propertyAccessor = new PropertyAccessor();
         $collection = $propertyAccessor->getValue($entity, $elementId);
+
         if ($collection instanceof ArrayCollection) {
             $entityClassName = $this->entityClassNameFinder($admin, explode('.', preg_replace('#\[\d*?\]#', '', $elementId)));
         } elseif ($collection instanceof \Doctrine\ORM\PersistentCollection) {
@@ -107,10 +106,11 @@ class AdminHelper
         } else {
             throw new \Exception('unknown collection class');
         }
+
         $collection->add(new $entityClassName);
         $propertyAccessor->setValue($entity, $elementId, $collection);
     }
-    
+
     protected function entityClassNameFinder(AdminInterface $admin, $elements)
     {
         $element = array_shift($elements);
@@ -121,6 +121,4 @@ class AdminHelper
             return $this->entityClassNameFinder($associationAdmin, $elements);
         }
     }
-
-
 }
