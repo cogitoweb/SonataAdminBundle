@@ -14,10 +14,11 @@ namespace Sonata\AdminBundle\Form\DataTransformer;
 
 use Symfony\Component\Form\DataTransformerInterface;
 use Sonata\AdminBundle\Model\ModelManagerInterface;
+use Doctrine\Common\Util\ClassUtils;
 use RuntimeException;
 
 /**
- * Transform object to ID and property title
+ * Transform object to ID and property label
  *
  * @author Andrej Hudec <pulzarraider@gmail.com>
  */
@@ -31,17 +32,20 @@ class ModelToIdPropertyTransformer implements DataTransformerInterface
 
     protected $multiple;
 
+    protected $toStringCallback;
+
     /**
      * @param ModelManagerInterface $modelManager
      * @param string                $className
      * @param string                $property
      */
-    public function __construct(ModelManagerInterface $modelManager, $className, $property, $multiple)
+    public function __construct(ModelManagerInterface $modelManager, $className, $property, $multiple=false, $toStringCallback=null)
     {
-        $this->modelManager = $modelManager;
-        $this->className    = $className;
-        $this->property     = $property;
-        $this->multiple     = $multiple;
+        $this->modelManager     = $modelManager;
+        $this->className        = $className;
+        $this->property         = $property;
+        $this->multiple         = $multiple;
+        $this->toStringCallback = $toStringCallback;
     }
 
     /**
@@ -63,19 +67,8 @@ class ModelToIdPropertyTransformer implements DataTransformerInterface
              return $this->modelManager->find($this->className, current($value['identifiers']));
         }
 
-        $identifierFieldName = current($this->modelManager->getIdentifierFieldNames($this->className));
-        $queryBuilder = $this->modelManager->createQuery($this->className, 'o');
-
-        $idx        = array();
-        $connection = $queryBuilder->getEntityManager()->getConnection();
         foreach ($value['identifiers'] as $id) {
-            $idx[] = $connection->quote($id);
-        }
-        $queryBuilder->andWhere(sprintf('o.%s IN (%s)', $identifierFieldName, implode(',', $idx)));
-        $query = $queryBuilder->getQuery();
-
-        foreach ($query->getResult() as $entity) {
-            $collection->add($entity);
+            $collection->add($this->modelManager->find($this->className, $id));
         }
 
         return $collection;
@@ -86,7 +79,7 @@ class ModelToIdPropertyTransformer implements DataTransformerInterface
      */
     public function transform($entityOrCollection)
     {
-        $result = array('identifiers' => array(), 'titles' => array());
+        $result = array('identifiers' => array(), 'labels' => array());
 
         if (!$entityOrCollection) {
             return $result;
@@ -97,16 +90,29 @@ class ModelToIdPropertyTransformer implements DataTransformerInterface
             $collection = array($entityOrCollection);
         }
 
-        if (!$this->property) {
+        if (empty($this->property)) {
             throw new RuntimeException('Please define "property" parameter.');
         }
 
         foreach ($collection as $entity) {
             $id  = current($this->modelManager->getIdentifierValues($entity));
-            $title = call_user_func(array($entity, 'get'.ucfirst($this->property)));
+
+            if ($this->toStringCallback !== null) {
+                if (!is_callable($this->toStringCallback)) {
+                    throw new RuntimeException('Callback in "to_string_callback" option doesn`t contain callable function.');
+                }
+
+                $label = call_user_func($this->toStringCallback, $entity, $this->property);
+            } else {
+                try {
+                    $label = (string) $entity;
+                } catch (\Exception $e) {
+                    throw new RuntimeException(sprintf("Unable to convert the entity %s to String, entity must have a '__toString()' method defined", ClassUtils::getClass($entity)), 0, $e);
+                }
+            }
 
             $result['identifiers'][] = $id;
-            $result['titles'][] = $title;
+            $result['labels'][] = $label;
         }
 
         return $result;
