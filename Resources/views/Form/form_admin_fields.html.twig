@@ -323,6 +323,10 @@ file that was distributed with this source code.
                     {%- elseif value.labels[0] is defined -%}
                         data = {id: {{ value.identifiers[0]|e('js') }}, label:'{{ value.labels[0]|e('js') }}'};
                     {%- endif  %}
+                    
+                    // 2z ->     
+                    //re assign value initial text from input
+                    $(element).val(data.id);
 
                     callback(data);
                 },
