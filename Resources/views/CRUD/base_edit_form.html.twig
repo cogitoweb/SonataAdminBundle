@@ -9,7 +9,7 @@
         </div>
     {% else %}
         <form class="form-horizontal"
-              action="{{ admin.generateUrl(url, {'id': admin.id(object), 'uniqid': admin.uniqid, 'subclass': app.request.get('subclass')}) }}" {{ form_enctype(form) }}
+              action="{{ admin.generateUrl(url, {(admin.idParameter): admin.id(object), 'uniqid': admin.uniqid, 'subclass': app.request.get('subclass')}) }}" {{ form_enctype(form) }}
               method="POST"
               {% if not admin_pool.getOption('html5_validate') %}novalidate="novalidate"{% endif %}
               >
