@@ -114,9 +114,14 @@ class Datagrid implements DatagridInterface
 
         $data = $this->form->getData();
 
-        foreach ($this->getFilters() as $name => $filter) {
-            $this->values[$name] = isset($this->values[$name]) ? $this->values[$name] : null;
-            $filter->apply($this->query, $data[$filter->getFormName()]);
+        // 2z -> se sono autocomplete non aggiungere filtri
+        // da admin
+        if(!isset($this->values['_per_page']['value'])) {
+            foreach ($this->getFilters() as $name => $filter) {
+                $this->values[$name] = isset($this->values[$name]) ? $this->values[$name] : null;
+
+                $filter->apply($this->query, $data[$filter->getFormName()]);
+            }
         }
 
         if (isset($this->values['_sort_by'])) {

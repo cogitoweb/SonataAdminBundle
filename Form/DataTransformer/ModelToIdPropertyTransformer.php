@@ -97,6 +97,14 @@ class ModelToIdPropertyTransformer implements DataTransformerInterface
         foreach ($collection as $entity) {
             $id  = current($this->modelManager->getIdentifierValues($entity));
 
+            // TOFIX
+            // attenzione attenzione attenzione: capire il perchè non risolve
+            // 2z -> hack per retrieve dell'id
+            if(!$id && method_exists($entity, 'getId'))
+            {
+              $id = $entity->getId();   
+            }
+            
             if ($this->toStringCallback !== null) {
                 if (!is_callable($this->toStringCallback)) {
                     throw new RuntimeException('Callback in "to_string_callback" option doesn`t contain callable function.');
