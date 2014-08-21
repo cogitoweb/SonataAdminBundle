@@ -143,9 +143,13 @@ class Pool
             throw new \RuntimeException("Invalid format for the Pool::adminClass property");
         }
 
+		// CGT BF -> rimossa obbligatorietà indicazione univoca admin code:
+		// prende il primo disponibile
+		/*
         if (count($this->adminClasses[$class]) > 1) {
             throw new \RuntimeException(sprintf('Unable to found a valid admin for the class: %s, get too many admin registered: %s', $class, implode(",", $this->adminClasses[$class])));
         }
+		*/
 
         return $this->getInstance($this->adminClasses[$class][0]);
     }
