@@ -177,8 +177,16 @@ file that was distributed with this source code.
                 {% endif %}
 
                 {% if sonata_admin.field_description.help %}
-                    <span class="help-block sonata-ba-field-help">{{ sonata_admin.admin.trans(sonata_admin.field_description.help, {}, sonata_admin.field_description.translationDomain)|raw }}</span>
+                  
+                  <script>
+                    $('.tooltip-cgt').tooltip();
+                  </script>
+                  
+                   <span class="help-icon btn btn-small tooltip-cgt" data-toggle="tooltip" data-placement="right" title="{{ sonata_admin.admin.trans(sonata_admin.field_description.help, {}, sonata_admin.field_description.translationDomain)|raw }}">
+                     <i class="icon-info-sign"></i>
+                   </span>
                 {% endif %}
+                
             </div>
         </div>
     {% endif %}
@@ -342,7 +350,7 @@ file that was distributed with this source code.
 
             autocompleteInput.on("change", function(e) {
 
-                // console.log("change "+JSON.stringify({val:e.val, added:e.added, removed:e.removed}));
+                //console.log("change "+JSON.stringify({val:e.val, added:e.added, removed:e.removed}));
 
                 // add new input
                 var el = null;
