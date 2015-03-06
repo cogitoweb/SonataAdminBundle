@@ -12,13 +12,11 @@ file that was distributed with this source code.
 {% extends 'SonataAdminBundle:CRUD:base_show_field.html.twig' %}
 
 {% block field %}
-{% spaceless %}
-    {% if value %}
-        <i class="icon-ok-circle"></i>
-        {%- trans from 'SonataAdminBundle' %}label_type_yes{% endtrans -%}
-    {% else %}
-        <i class="icon-ban-circle"></i>
-        {%- trans from 'SonataAdminBundle' %}label_type_no{% endtrans -%}
-    {% endif %}
-{% endspaceless %}
+    {% spaceless %}
+        {% if value %}
+            <span class="label label-success">{%- trans from 'SonataAdminBundle' %}label_type_yes{% endtrans -%}</span>
+        {% else %}
+            <span class="label label-important">{%- trans from 'SonataAdminBundle' %}label_type_no{% endtrans -%}</span>
+        {% endif %}
+    {% endspaceless %}
 {% endblock %}
