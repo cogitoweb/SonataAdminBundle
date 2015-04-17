@@ -21,6 +21,8 @@ use Symfony\Component\Form\FormBuilder;
 use Symfony\Component\Form\Exception\UnexpectedTypeException;
 use Symfony\Component\Form\CallbackTransformer;
 
+use Doctrine\Common\Util\Inflector as Inflector;
+
 class Datagrid implements DatagridInterface
 {
     /**
@@ -45,6 +47,9 @@ class Datagrid implements DatagridInterface
     protected $form;
 
     protected $results;
+    
+    // 2z -> dati aggiuntivi
+    protected $additional_data;
 
     /**
      * @param ProxyQueryInterface        $query
@@ -69,6 +74,15 @@ class Datagrid implements DatagridInterface
     {
         return $this->pager;
     }
+    
+    /**
+     * setto dati aggiuntivi sulla grid
+     * 
+     * @param array $data
+     */
+    public function setAdditionalData($data) {
+        $this->additional_data = $data;
+    }
 
     /**
      * {@inheritdoc}
@@ -79,6 +93,34 @@ class Datagrid implements DatagridInterface
 
         if (!$this->results) {
             $this->results = $this->pager->getResults();
+            
+            // 2z -> popolo tramite dati aggiuntivi
+            if($this->additional_data) {
+                
+                //exit($this->additional_data);
+                $closure = $this->additional_data;
+                $additional_results = $closure($this->results);
+
+                foreach($additional_results as $d) {
+                    foreach($this->results as $r) {
+
+                        // se match id 
+                        if(isset($d['id']) && method_exists($r, 'getId') && $d['id'] == $r->getId()) {
+
+                            foreach($d as $k => $v) {
+                                
+                                // provo a settare se esiste
+                                $m = Inflector::camelize('set_'.$k);
+
+                                if(method_exists($r, $m)) {
+                                    $r->$m($v);
+                                }
+                            }
+                            
+                        }
+                    }
+                }
+            }
         }
 
         return $this->results;
