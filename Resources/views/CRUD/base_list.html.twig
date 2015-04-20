@@ -98,11 +98,12 @@ file that was distributed with this source code.
                                             </script>
 
                                             {% block batch_actions %}
+                                                <!-- 2z // rimosso
                                                 <label class="checkbox" for="{{ admin.uniqid }}_all_elements">
                                                     <input type="checkbox" name="all_elements" id="{{ admin.uniqid }}_all_elements">
                                                     {{ 'all_elements'|trans({}, 'SonataAdminBundle') }}
                                                 </label>
-
+                                                -->
                                                 <select name="action" style="width: auto; height: auto">
                                                     {% for action, options in batchactions %}
                                                         <option value="{{ action }}">{{ options.label }}</option>
