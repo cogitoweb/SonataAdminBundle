@@ -9,7 +9,18 @@ file that was distributed with this source code.
 
 #}
 
-<th{% if(is_diff|default(false)) %} class="diff"{% endif %}>{% block name %}{{ admin.trans(field_description.label, {}, field_description.translationDomain) }}{% endblock %}</th>
+{#
+ # 2016-01-15 Daniele Artico
+ # Help tooltip
+ #}
+{# <th{% if(is_diff|default(false)) %} class="diff"{% endif %}>{% block name %}{{ admin.trans(field_description.label, {}, field_description.translationDomain) }}{% endblock %}</th> #}
+<th{% if(is_diff|default(false)) %} class="diff"{% endif %}>{% block name %}{{ admin.trans(field_description.label, {}, field_description.translationDomain) }}{% endblock %}
+	{% if field_description.help %}
+		<button type="button" class="btn btn-sm pull-right" data-toggle="tooltip" data-placement="right" title="{{ field_description.help|raw }}">
+			<i class="fa fa-question"></i>
+		</button>
+	{% endif %}
+</th>
 <td>{% block field %}{% if field_description.options.safe %}{{ value|raw }}{% else %}{{ value|nl2br }}{% endif %}{% endblock %}</td>
 
 {% block field_compare %}
