@@ -11,7 +11,7 @@
         <form
               {% if admin_pool.getOption('form_type') == 'horizontal' %}class="form-horizontal"{% endif %}
               role="form"
-              action="{{ admin.generateUrl(url, {'id': admin.id(object), 'uniqid': admin.uniqid, 'subclass': app.request.get('subclass')}) }}" {{ form_enctype(form) }}
+              action="{{ admin.generateUrl(url, {(admin.idParameter): admin.id(object), 'uniqid': admin.uniqid, 'subclass': app.request.get('subclass')}) }}" {{ form_enctype(form) }}
               method="POST"
               {% if not admin_pool.getOption('html5_validate') %}novalidate="novalidate"{% endif %}
               >
@@ -79,17 +79,30 @@
                                 {{ 'btn_preview'|trans({}, 'SonataAdminBundle') }}
                             </button>
                         {% endif %}
-                        {% if admin.id(object) is not null %}
+
+						{#
+						 # 2015-01-15 Daniele Artico
+						 # Added "Back to list" button
+						 #}
+						{% if admin.hasroute('list') and admin.isGranted('LIST')%}
+							<a class="btn btn-info" href="{{ admin.generateUrl('list') }}"><i class="fa fa-list"></i> {{ 'link_action_list'|trans({}, 'SonataAdminBundle') }}</a>
+						{% endif %}
+
+						{% if admin.id(object) is not null %}
                             <button type="submit" class="btn btn-success" name="btn_update_and_edit"><i class="fa fa-save"></i> {{ 'btn_update_and_edit_again'|trans({}, 'SonataAdminBundle') }}</button>
 
                             {% if admin.hasroute('list') and admin.isGranted('LIST') %}
                                 <button type="submit" class="btn btn-success" name="btn_update_and_list"><i class="fa fa-save"></i> <i class="fa fa-list"></i> {{ 'btn_update_and_return_to_list'|trans({}, 'SonataAdminBundle') }}</button>
                             {% endif %}
 
-                            {% if admin.hasroute('delete') and admin.isGranted('DELETE', object) %}
-                                {{ 'delete_or'|trans({}, 'SonataAdminBundle') }}
-                                <a class="btn btn-danger" href="{{ admin.generateObjectUrl('delete', object) }}"><i class="fa fa-minus-circle"></i> {{ 'link_delete'|trans({}, 'SonataAdminBundle') }}</a>
-                            {% endif %}
+							{#
+							 # 2015-01-15 Daniele Artico
+							 # Removed "Delete" button
+							 #}
+{#                            {% if admin.hasroute('delete') and admin.isGranted('DELETE', object) %}                                                                                                        #}
+{#                                {{ 'delete_or'|trans({}, 'SonataAdminBundle') }}                                                                                                                           #}
+{#                                <a class="btn btn-danger" href="{{ admin.generateObjectUrl('delete', object) }}"><i class="fa fa-minus-circle"></i> {{ 'link_delete'|trans({}, 'SonataAdminBundle') }}</a> #}
+{#                            {% endif %}                                                                                                                                                                    #}
 
                             {% if admin.isAclEnabled() and admin.hasroute('acl') and admin.isGranted('MASTER', object) %}
                                 <a class="btn btn-info" href="{{ admin.generateObjectUrl('acl', object) }}"><i class="fa fa-users"></i> {{ 'link_edit_acl'|trans({}, 'SonataAdminBundle') }}</a>
