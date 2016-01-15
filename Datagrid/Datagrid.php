@@ -11,6 +11,7 @@
 
 namespace Sonata\AdminBundle\Datagrid;
 
+use Doctrine\Common\Util\Inflector;
 use Sonata\AdminBundle\Admin\FieldDescriptionCollection;
 use Sonata\AdminBundle\Admin\FieldDescriptionInterface;
 use Sonata\AdminBundle\Filter\FilterInterface;
@@ -42,6 +43,11 @@ class Datagrid implements DatagridInterface
     protected $form;
 
     protected $results;
+
+	/**
+	 * 2016-01-15 Daniele Artico
+	 */
+	protected $additionalData;
 
     /**
      * @param ProxyQueryInterface        $query
@@ -76,6 +82,35 @@ class Datagrid implements DatagridInterface
 
         if (!$this->results) {
             $this->results = $this->pager->getResults();
+
+			/*
+			 * 2016-01-15 Daniele Artico
+			 * Handle additional data
+			 */
+			if ($this->getAdditionalData()) {
+				$closure           = $this->getAdditionalData();
+				$additionalResults = $closure($this->results);
+
+				foreach($additionalResults as $additionalResult) {
+					foreach($this->results as $result) {
+						// Check if id matches
+						if (
+							isset($additionalResult['id'])  &&
+							method_exists($result, 'getId') &&
+							$additionalResult['id'] == $result->getId()
+						) {
+							foreach($additionalResult as $key => $value) {
+								// Try to set the value
+								$method = Inflector::camelize('set_' . $key);
+
+								if (method_exists($result, $method)) {
+									$result->$method($value);
+								}
+							}
+						}
+					}
+				}
+			}
         }
 
         return $this->results;
@@ -266,4 +301,29 @@ class Datagrid implements DatagridInterface
 
         return $this->form;
     }
+
+	/**
+	 * 2016-01-15 Daniele Artico
+	 * Set additionalData
+	 * 
+	 * @param  array $additionalData
+	 * @return Datagrid
+	 */
+	public function setAdditionalData($additionalData)
+	{
+		$this->additionalData = $additionalData;
+		
+		return $this;
+	}
+
+	/**
+	 * 2016-01-15 Daniele Artico
+	 * Get additionalData
+	 * 
+	 * @return array
+	 */
+	public function getAdditionalData()
+	{
+		return $this->additionalData;
+	}
 }
