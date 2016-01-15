@@ -12,6 +12,11 @@ file that was distributed with this source code.
 {% if admin.isGranted('DELETE', object) and admin.hasRoute('delete') %}
     <a href="{{ admin.generateObjectUrl('delete', object) }}" class="btn btn-sm btn-default delete_link" title="{{ 'action_delete'|trans({}, 'SonataAdminBundle') }}">
         <i class="glyphicon glyphicon-remove"></i>
-        {{ 'action_delete'|trans({}, 'SonataAdminBundle') }}
+
+		{#
+		 # 2016-01-14 Daniele Artico
+		 # Hide button description, show only icon
+		 #}
+{#        {{ 'action_delete'|trans({}, 'SonataAdminBundle') }} #}
     </a>
 {% endif %}
