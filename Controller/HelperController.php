@@ -92,7 +92,12 @@ class HelperController
 
         $admin->setSubject($subject);
 
-        list($fieldDescription, $form) = $this->helper->appendFormFieldElement($admin, $subject, $elementId);
+		/*
+		 * 2016-01-15 Daniele Artico
+		 * Get nested collection
+		 */
+		$form = $this->helper->appendFormFieldElement($admin, $subject, $elementId);
+//        list($fieldDescription, $form) = $this->helper->appendFormFieldElement($admin, $subject, $elementId);
 
         /* @var $form \Symfony\Component\Form\Form */
         $view = $this->helper->getChildFormView($form->createView(), $elementId);
@@ -308,6 +313,14 @@ class HelperController
      */
     public function retrieveAutocompleteItemsAction(Request $request)
     {
+		/*
+		 * 2016-01-15 Daniele Artico
+		 * Expected a XmlHttpRequest request header
+		 */
+		if (!$request->isXmlHttpRequest()) {
+			throw new \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException('Forbidden', null, 403);
+		}
+
         $admin = $this->pool->getInstance($request->get('code'));
         $admin->setRequest($request);
 
@@ -321,6 +334,18 @@ class HelperController
         $fieldDescription = $this->retrieveFieldDescription($admin, $request->get('field'));
         $formAutocomplete = $admin->getForm()->get($fieldDescription->getName());
 
+		/*
+		 * 2016-01-15 Daniele Artico
+		 * Additional checks
+		 */
+		if (!$fieldDescription) {
+			throw new \RuntimeException(sprintf('The field "%s" does not exist.', $field));
+		}
+
+		if ($fieldDescription->getType() !== 'sonata_type_model_autocomplete') {
+			throw new \InvalidArgumentException(sprintf('Unsupported form type "%s" for field "%s".', $fieldDescription->getType(), $field));
+		}
+
         if ($formAutocomplete->getConfig()->getAttribute('disabled')) {
             throw new AccessDeniedException('Autocomplete list can`t be retrieved because the form element is disabled or read_only.');
         }
@@ -333,6 +358,14 @@ class HelperController
         $toStringCallback   = $formAutocomplete->getConfig()->getAttribute('to_string_callback');
 
         $searchText = $request->get('q');
+
+		/*
+		 * 2016-01-15 Daniele Artico
+		 * Handle additional parameters
+		 */
+		$page       = $request->get('page');
+		$code       = $request->get('code');
+		$field      = $request->get('field');
 
         $targetAdmin = $fieldDescription->getAssociationAdmin();
 
@@ -365,12 +398,24 @@ class HelperController
                     $filter = $datagrid->getFilter($prop);
                     $filter->setCondition(FilterInterface::CONDITION_OR);
 
+					/*
+					 * 2016-01-15 Daniele Artico
+					 * Hack to handle properties names containing a dot
+					 */
+					$prop = str_replace('.', '__', $prop);
+
                     $datagrid->setValue($prop, null, $searchText);
                 }
             } else {
                 if (!$datagrid->hasFilter($property)) {
-                    throw new \RuntimeException(sprintf('To retrieve autocomplete items, you should add filter "%s" to "%s" in configureDatagridFilters() method.', $property, get_class($targetAdmin)));
+                    throw new \RuntimeException(sprintf('To retrieve autocomplete items, you should add filter "%s" to "%s" in configureDatagridFilters() method.', $prop, get_class($targetAdmin)));
                 }
+
+				/*
+				 * 2016-01-15 Daniele Artico
+				 * Hack to handle properties names containing a dot
+				 */
+				$prop = str_replace('.', '__', $prop);
 
                 $datagrid->setValue($property, null, $searchText);
             }
