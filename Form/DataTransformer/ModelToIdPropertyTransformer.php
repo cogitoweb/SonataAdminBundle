@@ -65,10 +65,31 @@ class ModelToIdPropertyTransformer implements DataTransformerInterface
         if (!$this->multiple) {
             return $this->modelManager->find($this->className, current($value['identifiers']));
         }
+		
+		/*
+		 * 2016-01-15 Daniele Artico
+		 * Optimized entities retrieval: instead of performing a query for each entity, fetch them all together and then cycle
+		 */
+		$rootAlias           = 'o';
+		$identifierFieldName = current($this->modelManager->getIdentifierFieldNames($this->className));
+		$queryBuilder        = $this->modelManager->createQuery($this->className, $rootAlias);
 
-        foreach ($value['identifiers'] as $id) {
-            $collection->add($this->modelManager->find($this->className, $id));
-        }
+		$ids        = array();
+		$connection = $queryBuilder->getEntityManager()->getConnection();
+
+		foreach ($value['identifiers'] as $id) {
+			$ids[] = $connection->quote($id);
+		}
+		
+		$queryBuilder->andWhere(sprintf('%s.%s IN (%s)', $rootAlias, $identifierFieldName, implode(',', $ids)));
+        
+		foreach ($queryBuilder->getQuery()->getResult() as $entity) {
+			$collection->add($entity);
+		}
+
+//        foreach ($value['identifiers'] as $id) {
+//            $collection->add($this->modelManager->find($this->className, $id));
+//        }
 
         return $collection;
     }
