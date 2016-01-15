@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Sonata package.
+ * This file is part of the Sonata Project package.
  *
  * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
  *
@@ -11,11 +11,11 @@
 
 namespace Sonata\AdminBundle\Tests\Command;
 
+use Sonata\AdminBundle\Admin\Pool;
 use Sonata\AdminBundle\Command\SetupAclCommand;
+use Sonata\AdminBundle\Util\AdminAclManipulatorInterface;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
-use Sonata\AdminBundle\Admin\Pool;
-use Sonata\AdminBundle\Util\AdminAclManipulatorInterface;
 
 /**
  * @author Andrej Hudec <pulzarraider@gmail.com>
@@ -33,25 +33,22 @@ class SetupAclCommandTest extends \PHPUnit_Framework_TestCase
 
         $container->expects($this->any())
             ->method('get')
-            ->will($this->returnCallback(function($id) use ($container, $admin, $aclManipulator) {
+            ->will($this->returnCallback(function ($id) use ($container, $admin, $aclManipulator) {
                 switch ($id) {
                     case 'sonata.admin.pool':
                         $pool = new Pool($container, '', '');
                         $pool->setAdminServiceIds(array('acme.admin.foo'));
 
                         return $pool;
-                        break;
 
                     case 'sonata.admin.manipulator.acl.admin':
                         return $aclManipulator;
-                        break;
 
                     case 'acme.admin.foo':
                         return $admin;
-                        break;
                 }
 
-                return null;
+                return;
             }));
 
         $command->setContainer($container);
@@ -74,7 +71,7 @@ class SetupAclCommandTest extends \PHPUnit_Framework_TestCase
 
         $container->expects($this->any())
             ->method('get')
-            ->will($this->returnCallback(function($id) use ($container) {
+            ->will($this->returnCallback(function ($id) use ($container) {
                 if ($id == 'sonata.admin.pool') {
                     $pool = new Pool($container, '', '');
                     $pool->setAdminServiceIds(array('acme.admin.foo'));
@@ -106,25 +103,22 @@ class SetupAclCommandTest extends \PHPUnit_Framework_TestCase
 
         $container->expects($this->any())
             ->method('get')
-            ->will($this->returnCallback(function($id) use ($container, $admin) {
+            ->will($this->returnCallback(function ($id) use ($container, $admin) {
                 switch ($id) {
                     case 'sonata.admin.pool':
                         $pool = new Pool($container, '', '');
                         $pool->setAdminServiceIds(array('acme.admin.foo'));
 
                         return $pool;
-                        break;
 
                     case 'sonata.admin.manipulator.acl.admin':
                         return new \stdClass();
-                        break;
 
                     case 'acme.admin.foo':
                         return $admin;
-                        break;
                 }
 
-                return null;
+                return;
             }));
 
         $command->setContainer($container);

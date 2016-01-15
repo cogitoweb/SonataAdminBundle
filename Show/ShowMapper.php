@@ -1,33 +1,36 @@
 <?php
+
 /*
- * This file is part of the Sonata package.
+ * This file is part of the Sonata Project package.
  *
  * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- *
  */
+
 namespace Sonata\AdminBundle\Show;
 
 use Sonata\AdminBundle\Admin\AdminInterface;
-use Sonata\AdminBundle\Admin\FieldDescriptionInterface;
 use Sonata\AdminBundle\Admin\FieldDescriptionCollection;
+use Sonata\AdminBundle\Admin\FieldDescriptionInterface;
 use Sonata\AdminBundle\Builder\ShowBuilderInterface;
 use Sonata\AdminBundle\Mapper\BaseGroupedMapper;
 
 /**
- * This class is used to simulate the Form API
+ * Class ShowMapper
+ * This class is used to simulate the Form API.
  *
+ * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
  */
 class ShowMapper extends BaseGroupedMapper
 {
     protected $list;
 
     /**
-     * @param \Sonata\AdminBundle\Builder\ShowBuilderInterface     $showBuilder
-     * @param \Sonata\AdminBundle\Admin\FieldDescriptionCollection $list
-     * @param \Sonata\AdminBundle\Admin\AdminInterface             $admin
+     * @param ShowBuilderInterface       $showBuilder
+     * @param FieldDescriptionCollection $list
+     * @param AdminInterface             $admin
      */
     public function __construct(ShowBuilderInterface $showBuilder, FieldDescriptionCollection $list, AdminInterface $admin)
     {
@@ -42,10 +45,14 @@ class ShowMapper extends BaseGroupedMapper
      * @param mixed $type
      * @param array $fieldDescriptionOptions
      *
-     * @return \Sonata\AdminBundle\Show\ShowMapper
+     * @return $this
      */
     public function add($name, $type = null, array $fieldDescriptionOptions = array())
     {
+        if ($this->apply !== null && !$this->apply) {
+            return $this;
+        }
+
         $fieldKey = ($name instanceof FieldDescriptionInterface) ? $name->getName() : $name;
 
         $this->addFieldToCurrentGroup($fieldKey);
@@ -76,9 +83,7 @@ class ShowMapper extends BaseGroupedMapper
     }
 
     /**
-     * @param string $name
-     *
-     * @return array
+     * {@inheritdoc}
      */
     public function get($name)
     {
@@ -86,9 +91,7 @@ class ShowMapper extends BaseGroupedMapper
     }
 
     /**
-     * @param string $key
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function has($key)
     {
@@ -96,9 +99,7 @@ class ShowMapper extends BaseGroupedMapper
     }
 
     /**
-     * @param string $key
-     *
-     * @return \Sonata\AdminBundle\Show\ShowMapper
+     * {@inheritdoc}
      */
     public function remove($key)
     {
@@ -109,9 +110,7 @@ class ShowMapper extends BaseGroupedMapper
     }
 
     /**
-     * @param array $keys field names
-     *
-     * @return \Sonata\AdminBundle\Show\ShowMapper
+     * {@inheritdoc}
      */
     public function reorder(array $keys)
     {
@@ -134,5 +133,21 @@ class ShowMapper extends BaseGroupedMapper
     protected function setGroups(array $groups)
     {
         $this->admin->setShowGroups($groups);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getTabs()
+    {
+        return $this->admin->getShowTabs();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function setTabs(array $tabs)
+    {
+        $this->admin->setShowTabs($tabs);
     }
 }

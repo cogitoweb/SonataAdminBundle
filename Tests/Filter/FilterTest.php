@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Sonata package.
+ * This file is part of the Sonata Project package.
  *
  * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
  *
@@ -11,86 +11,91 @@
 
 namespace Sonata\AdminBundle\Tests\Filter;
 
-use Sonata\AdminBundle\Filter\Filter;
-use Sonata\AdminBundle\Datagrid\ProxyQueryInterface;
-
-class FilterTest_Filter extends Filter
-{
-    public function filter(ProxyQueryInterface $queryBuilder, $alias, $field, $value)
-    {
-    }
-
-    public function apply($query, $value)
-    {
-    }
-
-    public function getDefaultOptions()
-    {
-        return array(
-            'foo' => 'bar'
-        );
-    }
-
-    public function getRenderSettings()
-    {
-    }
-}
+use Sonata\AdminBundle\Tests\Fixtures\Filter\FooFilter;
 
 class FilterTest extends \PHPUnit_Framework_TestCase
 {
     public function testFilter()
     {
-        $filter = new FilterTest_Filter;
+        $filter = new FooFilter();
 
-        $this->assertEquals('text', $filter->getFieldType());
-        $this->assertEquals(array('required' => false), $filter->getFieldOptions());
+        $this->assertSame('text', $filter->getFieldType());
+        $this->assertSame(array('required' => false), $filter->getFieldOptions());
         $this->assertNull($filter->getLabel());
 
         $options = array(
-            'label' => 'foo',
-            'field_type' => 'integer',
+            'label'         => 'foo',
+            'field_type'    => 'integer',
             'field_options' => array('required' => true),
-            'field_name' => 'name'
+            'field_name'    => 'name',
         );
 
         $filter->setOptions($options);
 
-        $this->assertEquals('foo', $filter->getOption('label'));
-        $this->assertEquals('foo', $filter->getLabel());
+        $this->assertSame('foo', $filter->getOption('label'));
+        $this->assertSame('foo', $filter->getLabel());
 
-        $expected = $options;
-        $expected['foo'] = 'bar';
+        $expected = array_merge(array(
+            'show_filter'     => null,
+            'advanced_filter' => true,
+            'foo'             => 'bar',
+        ), $options);
 
-        $this->assertEquals($expected, $filter->getOptions());
-        $this->assertEquals('name', $filter->getFieldName());
+        $this->assertSame($expected, $filter->getOptions());
+        $this->assertSame('name', $filter->getFieldName());
 
-        $this->assertEquals('default', $filter->getOption('fake', 'default'));
+        $this->assertSame('default', $filter->getOption('fake', 'default'));
 
         $filter->setValue(42);
-        $this->assertEquals(42, $filter->getValue());
+        $this->assertSame(42, $filter->getValue());
 
         $filter->setCondition('>');
-        $this->assertEquals('>', $filter->getCondition());
+        $this->assertSame('>', $filter->getCondition());
+    }
+
+    public function testGetFieldOption()
+    {
+        $filter = new FooFilter();
+        $filter->initialize('name', array(
+            'field_options' => array('foo' => 'bar', 'baz' => 12345),
+        ));
+
+        $this->assertSame(array('foo' => 'bar', 'baz' => 12345), $filter->getFieldOptions());
+        $this->assertSame('bar', $filter->getFieldOption('foo'));
+        $this->assertSame(12345, $filter->getFieldOption('baz'));
+    }
+
+    public function testSetFieldOption()
+    {
+        $filter = new FooFilter();
+        $this->assertSame(array('required' => false), $filter->getFieldOptions());
+
+        $filter->setFieldOption('foo', 'bar');
+        $filter->setFieldOption('baz', 12345);
+
+        $this->assertSame(array('foo' => 'bar', 'baz' => 12345), $filter->getFieldOptions());
+        $this->assertSame('bar', $filter->getFieldOption('foo'));
+        $this->assertSame(12345, $filter->getFieldOption('baz'));
     }
 
     public function testInitialize()
     {
-        $filter = new FilterTest_Filter;
+        $filter = new FooFilter();
         $filter->initialize('name', array(
-           'field_name' => 'bar'
+            'field_name' => 'bar',
         ));
 
-        $this->assertEquals('name', $filter->getName());
-        $this->assertEquals('bar', $filter->getOption('field_name'));
-        $this->assertEquals('bar', $filter->getFieldName());
+        $this->assertSame('name', $filter->getName());
+        $this->assertSame('bar', $filter->getOption('field_name'));
+        $this->assertSame('bar', $filter->getFieldName());
     }
 
     public function testLabel()
     {
-        $filter = new FilterTest_Filter;
+        $filter = new FooFilter();
         $filter->setLabel('foo');
 
-        $this->assertEquals('foo', $filter->getLabel());
+        $this->assertSame('foo', $filter->getLabel());
     }
 
     /**
@@ -98,7 +103,7 @@ class FilterTest extends \PHPUnit_Framework_TestCase
      */
     public function testExceptionOnNonDefinedFieldName()
     {
-        $filter = new FilterTest_Filter;
+        $filter = new FooFilter();
 
         $filter->getFieldName();
     }
@@ -111,10 +116,10 @@ class FilterTest extends \PHPUnit_Framework_TestCase
      */
     public function testIsActive($expected, $value)
     {
-        $filter = new FilterTest_Filter;
+        $filter = new FooFilter();
         $filter->setValue($value);
 
-        $this->assertEquals($expected, $filter->isActive());
+        $this->assertSame($expected, $filter->isActive());
     }
 
     public function isActiveData()
@@ -122,9 +127,107 @@ class FilterTest extends \PHPUnit_Framework_TestCase
         return array(
             array(false, array()),
             array(false, array('value' => null)),
-            array(false, array('value' => "")),
+            array(false, array('value' => '')),
             array(false, array('value' => false)),
-            array(true, array('value' => "active")),
+            array(true, array('value' => 'active')),
         );
+    }
+
+    public function testGetTranslationDomain()
+    {
+        $filter = new FooFilter();
+        $this->assertSame(null, $filter->getTranslationDomain());
+        $filter->setOption('translation_domain', 'baz');
+        $this->assertSame('baz', $filter->getTranslationDomain());
+    }
+
+    public function testGetFieldMappingException()
+    {
+        $filter = new FooFilter();
+        $filter->initialize('foo');
+
+        try {
+            $filter->getFieldMapping();
+        } catch (\RuntimeException $e) {
+            $this->assertContains('The option `field_mapping` must be set for field: `foo`', $e->getMessage());
+
+            return;
+        }
+
+        $this->fail('Failed asserting that exception of type "\RuntimeException" is thrown.');
+    }
+
+    public function testGetFieldMapping()
+    {
+        $fieldMapping = array(
+            'fieldName'  => 'username',
+            'type'       => 'string',
+            'columnName' => 'username',
+            'length'     => 200,
+            'unique'     => true,
+            'nullable'   => false,
+            'declared'   => 'Foo\Bar\User',
+        );
+
+        $filter = new FooFilter();
+        $filter->setOption('field_mapping', $fieldMapping);
+        $this->assertSame($fieldMapping, $filter->getFieldMapping());
+    }
+
+    public function testGetParentAssociationMappings()
+    {
+        $parentAssociationMapping = array(
+            0 => array('fieldName'    => 'user',
+                'targetEntity'        => 'Foo\Bar\User',
+                'joinColumns'         => array(
+                    0 => array(
+                        'name'                 => 'user_id',
+                        'referencedColumnName' => 'user_id',
+                    ),
+                ),
+                'type'         => 2,
+                'mappedBy'     => null,
+            ),
+        );
+
+        $filter = new FooFilter();
+        $this->assertSame(array(), $filter->getParentAssociationMappings());
+        $filter->setOption('parent_association_mappings', $parentAssociationMapping);
+        $this->assertSame($parentAssociationMapping, $filter->getParentAssociationMappings());
+    }
+
+    public function testGetAssociationMappingException()
+    {
+        $filter = new FooFilter();
+        $filter->initialize('foo');
+        try {
+            $filter->getAssociationMapping();
+        } catch (\RuntimeException $e) {
+            $this->assertContains('The option `association_mapping` must be set for field: `foo`', $e->getMessage());
+
+            return;
+        }
+
+        $this->fail('Failed asserting that exception of type "\RuntimeException" is thrown.');
+    }
+
+    public function testGetAssociationMapping()
+    {
+        $associationMapping = array(
+            'fieldName'    => 'user',
+            'targetEntity' => 'Foo\Bar\User',
+            'joinColumns'  => array(
+                0 => array(
+                    'name'                 => 'user_id',
+                    'referencedColumnName' => 'user_id',
+                ),
+            ),
+            'type'         => 2,
+            'mappedBy'     => null,
+        );
+
+        $filter = new FooFilter();
+        $filter->setOption('association_mapping', $associationMapping);
+        $this->assertSame($associationMapping, $filter->getAssociationMapping());
     }
 }

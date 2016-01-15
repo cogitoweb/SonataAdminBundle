@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Sonata package.
+ * This file is part of the Sonata Project package.
  *
  * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
  *
@@ -12,8 +12,7 @@
 namespace Sonata\AdminBundle\Tests\Form\Type;
 
 use Sonata\AdminBundle\Form\Type\ModelHiddenType;
-
-use Symfony\Component\Form\Tests\Extension\Core\Type\TypeTestCase;
+use Symfony\Component\Form\Test\TypeTestCase;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ModelHiddenTypeTest extends TypeTestCase
@@ -24,24 +23,28 @@ class ModelHiddenTypeTest extends TypeTestCase
         $modelManager = $this->getMock('Sonata\AdminBundle\Model\ModelManagerInterface');
         $optionResolver = new OptionsResolver();
 
-        $type->setDefaultOptions($optionResolver);
+        if (!method_exists('Symfony\Component\Form\AbstractType', 'getBlockPrefix')) {
+            $type->setDefaultOptions($optionResolver);
+        } else {
+            $type->configureOptions($optionResolver);
+        }
 
         $options = $optionResolver->resolve(array('model_manager' => $modelManager, 'class' => '\Foo'));
 
         $this->assertInstanceOf('Sonata\AdminBundle\Model\ModelManagerInterface', $options['model_manager']);
-        $this->assertEquals($modelManager, $options['model_manager']);
-        $this->assertEquals('\Foo', $options['class']);
+        $this->assertSame($modelManager, $options['model_manager']);
+        $this->assertSame('\Foo', $options['class']);
     }
 
     public function testGetName()
     {
         $type = new ModelHiddenType();
-        $this->assertEquals('sonata_type_model_hidden', $type->getName());
+        $this->assertSame('sonata_type_model_hidden', $type->getName());
     }
 
     public function testGetParent()
     {
         $type = new ModelHiddenType();
-        $this->assertEquals('hidden', $type->getParent());
+        $this->assertSame('hidden', $type->getParent());
     }
 }

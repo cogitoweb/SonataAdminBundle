@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Sonata package.
+ * This file is part of the Sonata Project package.
  *
  * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
  *
@@ -31,7 +31,7 @@ class ModelToIdTransformerTest extends \PHPUnit_Framework_TestCase
                 ->method('find')
                 ->will($this->returnValue(true));
 
-        $this->assertFalse(in_array(false, array("0", 0), true));
+        $this->assertFalse(in_array(false, array('0', 0), true));
 
         // we pass 0 as integer
         $this->assertTrue($transformer->reverseTransform(0));
@@ -51,36 +51,36 @@ class ModelToIdTransformerTest extends \PHPUnit_Framework_TestCase
      */
     public function testReverseTransform($value, $expected)
     {
-        $transformer = new ModelToIdTransformer($this->modelManager,'TEST2');
+        $transformer = new ModelToIdTransformer($this->modelManager, 'TEST2');
 
         $this->modelManager->expects($this->any())->method('find');
 
-        $this->assertEquals($expected, $transformer->reverseTransform($value));
+        $this->assertSame($expected, $transformer->reverseTransform($value));
     }
 
     public function getReverseTransformValues()
     {
         return array(
             array(null, null),
-            array(false, false),
+            array(false, null),
             array(array(), null),
-            array("", null)
+            array('', null),
         );
     }
 
     public function testTransform()
     {
         $this->modelManager->expects($this->once())
-            ->method('getIdentifierValues')
-            ->will($this->returnValue(array(123)));
+            ->method('getNormalizedIdentifier')
+            ->will($this->returnValue(123));
 
-        $transformer = new ModelToIdTransformer($this->modelManager,'TEST');
+        $transformer = new ModelToIdTransformer($this->modelManager, 'TEST');
 
         $this->assertNull($transformer->transform(null));
         $this->assertNull($transformer->transform(false));
         $this->assertNull($transformer->transform(0));
         $this->assertNull($transformer->transform('0'));
 
-        $this->assertEquals(123, $transformer->transform(new \stdClass));
+        $this->assertSame(123, $transformer->transform(new \stdClass()));
     }
 }

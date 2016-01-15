@@ -1,17 +1,18 @@
 Saving hooks
 ============
 
-When a SonataAdmin is submitted for processing, two events are always called. One
-is before any persistence layer interaction and the other is afterwards, the
+When a SonataAdmin is submitted for processing, there are some events called. One
+is before any persistence layer interaction and the other is afterward. Also between submitting
+and validating for edit and create actions ``preValidate`` event called. The
 events are named as follows:
 
-- new object : ``prePersist($object)`` / ``postPersist($object)``
-- edited object : ``preUpdate($object)`` / ``postUpdate($object)``
+- new object : ``preValidate($object)`` / ``prePersist($object)`` / ``postPersist($object)``
+- edited object : ``preValidate($object)`` / ``preUpdate($object)`` / ``postUpdate($object)``
 - deleted object : ``preRemove($object)`` / ``postRemove($object)``
 
 It is worth noting that the update events are called whenever the Admin is successfully
 submitted, regardless of whether there are any actual persistence layer events. This
-differs from the use of preUpdate and postUpdate events in DoctrineORM and perhaps some
+differs from the use of ``preUpdate`` and ``postUpdate`` events in DoctrineORM and perhaps some
 other persistence layers.
 
 For example: if you submit an edit form without changing any of the values on the form
@@ -29,12 +30,11 @@ advantage.
 Example used with the FOS/UserBundle
 ------------------------------------
 
-The ``FOSUserBundle`` provides authentication features for your Symfony2 Project,
+The ``FOSUserBundle`` provides authentication features for your Symfony Project,
 and is compatible with Doctrine ORM, Doctrine ODM and Propel. See
-`FOSUserBundle on GitHub 
-<https://github.com/FriendsOfSymfony/FOSUserBundle/>`_ for more information.
+`FOSUserBundle on GitHub`_ for more information.
 
-The user management system requires to perform specific call when the user
+The user management system requires to perform specific calls when the user
 password or username are updated. This is how the Admin bundle can be used to
 solve the issue by using the ``preUpdate`` saving hook.
 
@@ -89,7 +89,6 @@ solve the issue by using the ``preUpdate`` saving hook.
         }
     }
 
-
 The service declaration where the ``UserManager`` is injected into the Admin class.
 
 .. configuration-block::
@@ -103,6 +102,8 @@ The service declaration where the ``UserManager`` is injected into the Admin cla
             <argument />
 
             <call method="setUserManager">
-                <argument type='service' id='fos_user.user_manager' />
+                <argument type="service" id="fos_user.user_manager" />
             </call>
         </service>
+
+.. _FOSUserBundle on GitHub: https://github.com/FriendsOfSymfony/FOSUserBundle/

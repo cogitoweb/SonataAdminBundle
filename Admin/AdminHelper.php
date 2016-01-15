@@ -1,6 +1,7 @@
 <?php
+
 /*
- * This file is part of the Sonata package.
+ * This file is part of the Sonata Project package.
  *
  * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
  *
@@ -10,13 +11,26 @@
 
 namespace Sonata\AdminBundle\Admin;
 
-use Symfony\Component\Form\FormView;
+use Doctrine\Common\Inflector\Inflector;
+use Doctrine\Common\Util\ClassUtils;
+use Sonata\AdminBundle\Exception\NoValueException;
+use Sonata\AdminBundle\Util\FormBuilderIterator;
 use Sonata\AdminBundle\Util\FormViewIterator;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormView;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 use Doctrine\Common\Collections\ArrayCollection;
 
+/**
+ * Class AdminHelper.
+ *
+ * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
+ */
 class AdminHelper
 {
+    /**
+     * @var Pool
+     */
     protected $pool;
 
     /**
@@ -28,10 +42,29 @@ class AdminHelper
     }
 
     /**
-     * @param \Symfony\Component\Form\FormView $formView
-     * @param string                           $elementId
+     * @throws \RuntimeException
      *
-     * @return null|\Symfony\Component\Form\FormView
+     * @param FormBuilderInterface $formBuilder
+     * @param string               $elementId
+     *
+     * @return FormBuilderInterface
+     */
+    public function getChildFormBuilder(FormBuilderInterface $formBuilder, $elementId)
+    {
+        foreach (new FormBuilderIterator($formBuilder) as $name => $formBuilder) {
+            if ($name == $elementId) {
+                return $formBuilder;
+            }
+        }
+
+        return;
+    }
+
+    /**
+     * @param FormView $formView
+     * @param string   $elementId
+     *
+     * @return null|FormView
      */
     public function getChildFormView(FormView $formView, $elementId)
     {
@@ -41,7 +74,7 @@ class AdminHelper
             }
         }
 
-        return null;
+        return;
     }
 
     /**
@@ -49,7 +82,7 @@ class AdminHelper
      *
      * @param string $code
      *
-     * @return \Sonata\AdminBundle\Admin\AdminInterface
+     * @return AdminInterface
      */
     public function getAdmin($code)
     {
@@ -57,26 +90,34 @@ class AdminHelper
     }
 
     /**
+     * Note:
+     *   This code is ugly, but there is no better way of doing it.
+     *   For now the append form element action used to add a new row works
+     *   only for direct FieldDescription (not nested one).
+     *
      * @throws \RuntimeException
      *
-     * @param \Sonata\AdminBundle\Admin\AdminInterface $admin
-     * @param object                                   $subject
-     * @param string                                   $elementId
+     * @param AdminInterface $admin
+     * @param object         $subject
+     * @param string         $elementId
      *
      * @return array
      */
     public function appendFormFieldElement(AdminInterface $admin, $subject, $elementId)
     {
         // retrieve the subject
-        $form = $admin->getFormBuilder()->getForm();
+        $formBuilder = $admin->getFormBuilder();
+
+        $form = $formBuilder->getForm();
         $form->setData($subject);
-        $form->submit($admin->getRequest());
+        $form->handleRequest($admin->getRequest());
 
         $elementId = preg_replace('#.(\d+)#', '[$1]', implode('.', explode('_', substr($elementId, strpos($elementId, '_') + 1))));
+		
         // append a new instance into the object
         $this->addNewInstance($admin, $elementId);
-
-        // return new form with empty row
+		
+		// return new form with empty row
         $finalForm = $admin->getFormBuilder()->getForm();
         $finalForm->setData($subject);
         $finalForm->setData($form->getData());
@@ -85,30 +126,47 @@ class AdminHelper
     }
 
     /**
-     * Add a new instance
+     * Add a new instance to the related FieldDescriptionInterface value.
      *
-     * @param AdminInterface $admin
-     * @param string         $elementId
+     * @param object                    $object
+     * @param FieldDescriptionInterface $fieldDescription
      *
      * @throws \RuntimeException
      */
-    protected function addNewInstance(AdminInterface $admin, $elementId)
+    public function addNewInstance($object, FieldDescriptionInterface $fieldDescription)
     {
-        $entity = $admin->getSubject();
-        $propertyAccessor = new PropertyAccessor();
-        $collection = $propertyAccessor->getValue($entity, $elementId);
+        $instance = $fieldDescription->getAssociationAdmin()->getNewInstance();
+        $mapping  = $fieldDescription->getAssociationMapping();
 
-        if ($collection instanceof ArrayCollection) {
-            $entityClassName = $this->entityClassNameFinder($admin, explode('.', preg_replace('#\[\d*?\]#', '', $elementId)));
-        } elseif ($collection instanceof \Doctrine\ORM\PersistentCollection) {
-            //since doctrine 2.4
-            $entityClassName = $collection->getTypeClass()->getName();
-        } else {
-            throw new \Exception('unknown collection class');
+        $method = sprintf('add%s', $this->camelize($mapping['fieldName']));
+
+        if (!method_exists($object, $method)) {
+            $method = rtrim($method, 's');
+
+            if (!method_exists($object, $method)) {
+                $method = sprintf('add%s', $this->camelize(Inflector::singularize($mapping['fieldName'])));
+
+                if (!method_exists($object, $method)) {
+                    throw new \RuntimeException(sprintf('Please add a method %s in the %s class!', $method, ClassUtils::getClass($object)));
+                }
+            }
         }
 
-        $collection->add(new $entityClassName);
-        $propertyAccessor->setValue($entity, $elementId, $collection);
+        $object->$method($instance);
+    }
+
+    /**
+     * Camelize a string.
+     *
+     * @static
+     *
+     * @param string $property
+     *
+     * @return string
+     */
+    public function camelize($property)
+    {
+        return BaseFieldDescription::camelize($property);
     }
 
     protected function entityClassNameFinder(AdminInterface $admin, $elements)

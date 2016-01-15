@@ -1,6 +1,7 @@
 <?php
+
 /*
- * This file is part of the Sonata project.
+ * This file is part of the Sonata Project package.
  *
  * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
  *
@@ -8,18 +9,15 @@
  * file that was distributed with this source code.
  */
 
-namespace Sonata\AdminBundle\Route;
+namespace Sonata\AdminBundle\Tests\Search;
 
 use Sonata\AdminBundle\Admin\AdminInterface;
 use Sonata\AdminBundle\Admin\Pool;
 use Sonata\AdminBundle\Search\SearchHandler;
-use Sonata\AdminBundle\Datagrid\DatagridInterface;
-use Sonata\AdminBundle\Filter\FilterInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
 class SearchHandlerTest extends \PHPUnit_Framework_TestCase
 {
-
     /**
      * @param AdminInterface $admin
      *
@@ -28,7 +26,7 @@ class SearchHandlerTest extends \PHPUnit_Framework_TestCase
     public function getPool(AdminInterface $admin = null)
     {
         $container = $this->getMock('Symfony\Component\DependencyInjection\ContainerInterface');
-        $container->expects($this->any())->method('get')->will($this->returnCallback(function($id) use ($admin) {
+        $container->expects($this->any())->method('get')->will($this->returnCallback(function ($id) use ($admin) {
             if ($id == 'fake') {
                 throw new ServiceNotFoundException('Fake service does not exist');
             }

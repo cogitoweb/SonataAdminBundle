@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Sonata package.
+ * This file is part of the Sonata Project package.
  *
  * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
  *
@@ -11,22 +11,14 @@
 
 namespace Sonata\AdminBundle\Tests\Command;
 
-use Sonata\AdminBundle\Command\ExplainAdminCommand;
-use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\Console\Application;
 use Sonata\AdminBundle\Admin\Pool;
+use Sonata\AdminBundle\Command\ExplainAdminCommand;
 use Sonata\AdminBundle\Route\RouteCollection;
-use Symfony\Component\Validator\MetadataFactoryInterface;
-use Sonata\AdminBundle\Model\ModelManagerInterface;
-use Symfony\Component\Form\FormBuilderInterface;
-use Sonata\AdminBundle\Builder\DatagridBuilderInterface;
-use Sonata\AdminBundle\Builder\ListBuilderInterface;
-use Symfony\Component\Form\FormBuilder;
-use Sonata\AdminBundle\Admin\FieldDescriptionInterface;
-use Symfony\Component\Validator\Mapping\ElementMetadata;
-use Symfony\Component\Validator\Constraints\NotNull;
-use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Validator\Constraints\Email;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotNull;
 
 /**
  * @author Andrej Hudec <pulzarraider@gmail.com>
@@ -99,11 +91,11 @@ class ExplainAdminCommandTest extends \PHPUnit_Framework_TestCase
 
         $this->admin->expects($this->any())
             ->method('getListFieldDescriptions')
-            ->will($this->returnValue(array('fooTextField'=>$fieldDescription1, 'barDateTimeField'=>$fieldDescription2)));
+            ->will($this->returnValue(array('fooTextField' => $fieldDescription1, 'barDateTimeField' => $fieldDescription2)));
 
         $this->admin->expects($this->any())
             ->method('getFilterFieldDescriptions')
-            ->will($this->returnValue(array('fooTextField'=>$fieldDescription1, 'barDateTimeField'=>$fieldDescription2)));
+            ->will($this->returnValue(array('fooTextField' => $fieldDescription1, 'barDateTimeField' => $fieldDescription2)));
 
         $this->admin->expects($this->any())
             ->method('getFormTheme')
@@ -111,7 +103,7 @@ class ExplainAdminCommandTest extends \PHPUnit_Framework_TestCase
 
         $this->admin->expects($this->any())
             ->method('getFormFieldDescriptions')
-            ->will($this->returnValue(array('fooTextField'=>$fieldDescription1, 'barDateTimeField'=>$fieldDescription2)));
+            ->will($this->returnValue(array('fooTextField' => $fieldDescription1, 'barDateTimeField' => $fieldDescription2)));
 
         $this->admin->expects($this->any())
             ->method('isChild')
@@ -125,38 +117,50 @@ class ExplainAdminCommandTest extends \PHPUnit_Framework_TestCase
 
         $this->admin->expects($this->any())
             ->method('getParent')
-            ->will($this->returnCallback(function() use ($adminParent) {
+            ->will($this->returnCallback(function () use ($adminParent) {
                 return $adminParent;
             }));
 
-        $this->validatorFactory = $this->getMock('Symfony\Component\Validator\MetadataFactoryInterface');
+        if (interface_exists('Symfony\Component\Validator\Mapping\Factory\MetadataFactoryInterface')) { // Prefer Symfony 2.5+ interfaces
+            $this->validatorFactory = $this->getMock('Symfony\Component\Validator\Mapping\Factory\MetadataFactoryInterface');
+
+            $validator = $this->getMock('Symfony\Component\Validator\Validator\ValidatorInterface');
+            $validator->expects($this->any())->method('getMetadataFor')->will($this->returnValue($this->validatorFactory));
+        } else {
+            $this->validatorFactory = $this->getMock('Symfony\Component\Validator\MetadataFactoryInterface');
+
+            $validator = $this->getMock('Symfony\Component\Validator\ValidatorInterface');
+            $validator->expects($this->any())->method('getMetadataFactory')->will($this->returnValue($this->validatorFactory));
+        }
 
         // php 5.3 BC
         $admin = $this->admin;
-        $validatorMetadata = $this->validatorFactory;
+        $validatorFactory = $this->validatorFactory;
 
         $container->expects($this->any())
             ->method('get')
-            ->will($this->returnCallback(function($id) use ($container, $admin, $validatorMetadata) {
+            ->will($this->returnCallback(function ($id) use ($container, $admin, $validator, $validatorFactory) {
                 switch ($id) {
                     case 'sonata.admin.pool':
                         $pool = new Pool($container, '', '');
                         $pool->setAdminServiceIds(array('acme.admin.foo', 'acme.admin.bar'));
 
                         return $pool;
-                        break;
 
-                    case 'validator.mapping.class_metadata_factory':
-                        return $validatorMetadata;
-                        break;
+                    case 'validator.validator_factory':
+                        return $validatorFactory;
+
+                    case 'validator':
+                        return $validator;
 
                     case 'acme.admin.foo':
                         return $admin;
-                        break;
                 }
 
-                return null;
+                return;
             }));
+
+        $container->expects($this->any())->method('has')->will($this->returnValue(true));
 
         $command->setContainer($container);
 
@@ -165,19 +169,32 @@ class ExplainAdminCommandTest extends \PHPUnit_Framework_TestCase
 
     public function testExecute()
     {
-        $metadata = $this->getMock('Symfony\Component\Validator\MetadataInterface');
+        if (interface_exists('Symfony\Component\Validator\Mapping\MetadataInterface')) { //sf2.5+
+            $metadata = $this->getMock('Symfony\Component\Validator\Mapping\MetadataInterface');
+        } else {
+            $metadata = $this->getMock('Symfony\Component\Validator\MetadataInterface');
+        }
 
         $this->validatorFactory->expects($this->once())
             ->method('getMetadataFor')
             ->with($this->equalTo('Acme\Entity\Foo'))
             ->will($this->returnValue($metadata));
 
-        $propertyMetadata = $this->getMockForAbstractClass('Symfony\Component\Validator\Mapping\ElementMetadata');
-        $propertyMetadata->constraints = array(new NotNull(), new Length(array('min' => 2, 'max' => 50, 'groups' => array('create', 'edit'),)));
+        if (class_exists('Symfony\Component\Validator\Mapping\GenericMetadata')) {
+            $class = 'GenericMetadata';
+        } else {
+            // Symfony <2.5 compatibility
+            $class = 'ElementMetadata';
+        }
+
+        $propertyMetadata = $this->getMockForAbstractClass('Symfony\Component\Validator\Mapping\\'.$class);
+        $propertyMetadata->constraints = array(new NotNull(), new Length(array('min' => 2, 'max' => 50, 'groups' => array('create', 'edit'))));
+
         $metadata->properties = array('firstName' => $propertyMetadata);
 
-        $getterMetadata = $this->getMockForAbstractClass('Symfony\Component\Validator\Mapping\ElementMetadata');
-        $getterMetadata->constraints = array(new NotNull(), new Email(array('groups' => array('registration', 'edit'),)));
+        $getterMetadata = $this->getMockForAbstractClass('Symfony\Component\Validator\Mapping\\'.$class);
+        $getterMetadata->constraints = array(new NotNull(), new Email(array('groups' => array('registration', 'edit'))));
+
         $metadata->getters = array('email' => $getterMetadata);
 
         $modelManager = $this->getMock('Sonata\AdminBundle\Model\ModelManagerInterface');
@@ -208,14 +225,18 @@ class ExplainAdminCommandTest extends \PHPUnit_Framework_TestCase
 
         $command = $this->application->find('sonata:admin:explain');
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array('command' => $command->getName(), 'admin'=>'acme.admin.foo'));
+        $commandTester->execute(array('command' => $command->getName(), 'admin' => 'acme.admin.foo'));
 
-        $this->assertEquals(sprintf(str_replace("\n", PHP_EOL, file_get_contents(__DIR__.'/../Fixtures/Command/explain_admin.txt')), get_class($this->admin), get_class($modelManager), get_class($datagridBuilder), get_class($listBuilder)), $commandTester->getDisplay());
+        $this->assertSame(sprintf(str_replace("\n", PHP_EOL, file_get_contents(__DIR__.'/../Fixtures/Command/explain_admin.txt')), get_class($this->admin), get_class($modelManager), get_class($datagridBuilder), get_class($listBuilder)), $commandTester->getDisplay());
     }
 
     public function testExecuteEmptyValidator()
     {
-        $metadata = $this->getMock('Symfony\Component\Validator\MetadataInterface');
+        if (interface_exists('Symfony\Component\Validator\Mapping\MetadataInterface')) { //sf2.5+
+            $metadata = $this->getMock('Symfony\Component\Validator\Mapping\MetadataInterface');
+        } else {
+            $metadata = $this->getMock('Symfony\Component\Validator\MetadataInterface');
+        }
 
         $this->validatorFactory->expects($this->once())
             ->method('getMetadataFor')
@@ -253,9 +274,9 @@ class ExplainAdminCommandTest extends \PHPUnit_Framework_TestCase
 
         $command = $this->application->find('sonata:admin:explain');
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array('command' => $command->getName(), 'admin'=>'acme.admin.foo'));
+        $commandTester->execute(array('command' => $command->getName(), 'admin' => 'acme.admin.foo'));
 
-        $this->assertEquals(sprintf(str_replace("\n", PHP_EOL, file_get_contents(__DIR__.'/../Fixtures/Command/explain_admin_empty_validator.txt')), get_class($this->admin), get_class($modelManager), get_class($datagridBuilder), get_class($listBuilder)), $commandTester->getDisplay());
+        $this->assertSame(sprintf(str_replace("\n", PHP_EOL, file_get_contents(__DIR__.'/../Fixtures/Command/explain_admin_empty_validator.txt')), get_class($this->admin), get_class($modelManager), get_class($datagridBuilder), get_class($listBuilder)), $commandTester->getDisplay());
     }
 
     public function testExecuteNonAdminService()
@@ -263,10 +284,9 @@ class ExplainAdminCommandTest extends \PHPUnit_Framework_TestCase
         try {
             $command = $this->application->find('sonata:admin:explain');
             $commandTester = new CommandTester($command);
-            $commandTester->execute(array('command' => $command->getName(), 'admin'=>'nonexistent.service'));
-
+            $commandTester->execute(array('command' => $command->getName(), 'admin' => 'nonexistent.service'));
         } catch (\RuntimeException $e) {
-            $this->assertEquals('Service "nonexistent.service" is not an admin class', $e->getMessage());
+            $this->assertSame('Service "nonexistent.service" is not an admin class', $e->getMessage());
 
             return;
         }

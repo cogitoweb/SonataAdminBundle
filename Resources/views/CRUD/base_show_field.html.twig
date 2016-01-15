@@ -9,13 +9,31 @@ file that was distributed with this source code.
 
 #}
 
-<th>{% block name %}{{ admin.trans(field_description.label, {}, field_description.translationDomain) }}{% endblock %}
-    
+{#
+	Originale:
+	<th{% if(is_diff|default(false)) %} class="diff"{% endif %}>{% block name %}{{ admin.trans(field_description.label, {}, field_description.translationDomain) }}{% endblock %}</th>
+	
+	2016-01-14 Daniele Artico:
+	- Aggiunta struttura di controllo per visualizzazione aiuto;
+#}
+<th{% if(is_diff|default(false)) %} class="diff"{% endif %}>
+    {% block name %}
+        {{ admin.trans(field_description.label, {}, field_description.translationDomain) }}
+    {% endblock %}
+
     {% if field_description.help %}
-        <span class="help-icon btn btn-small tooltip-cgt" data-toggle="tooltip" data-placement="right" title="{{ field_description.help|raw }}">
-            <i class="icon-info-sign"></i>
-        </span>
+        <button type="button" class="btn btn-sm cogito-help cogito-tooltip" data-toggle="tooltip" data-placement="right" title="{{ field_description.help|raw }}">
+            <i class="fa fa-question"></i>
+        </button>
     {% endif %}
-    
 </th>
 <td>{% block field %}{% if field_description.options.safe %}{{ value|raw }}{% else %}{{ value|nl2br }}{% endif %}{% endblock %}</td>
+
+{% block field_compare %}
+    {% if(value_compare is defined) %}
+        <td>
+            {% set value = value_compare %}
+            {{ block('field') }}
+        </td>
+    {% endif %}
+{% endblock %}

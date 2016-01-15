@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Sonata package.
+ * This file is part of the Sonata Project package.
  *
  * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
  *
@@ -12,7 +12,7 @@
 namespace Sonata\AdminBundle\Tests\Form\Type;
 
 use Sonata\AdminBundle\Form\Type\AdminType;
-use Symfony\Component\Form\Tests\Extension\Core\Type\TypeTestCase;
+use Symfony\Component\Form\Test\TypeTestCase;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AdminTypeTest extends TypeTestCase
@@ -23,15 +23,19 @@ class AdminTypeTest extends TypeTestCase
 
         $optionResolver = new OptionsResolver();
 
-        $type->setDefaultOptions($optionResolver);
+        if (!method_exists('Symfony\Component\Form\AbstractType', 'getBlockPrefix')) {
+            $type->setDefaultOptions($optionResolver);
+        } else {
+            $type->configureOptions($optionResolver);
+        }
 
         $options = $optionResolver->resolve();
 
         $this->assertTrue($options['delete']);
         $this->assertFalse($options['auto_initialize']);
-        $this->assertEquals('link_add', $options['btn_add']);
-        $this->assertEquals('link_list', $options['btn_list']);
-        $this->assertEquals('link_delete', $options['btn_delete']);
-        $this->assertEquals('SonataAdminBundle', $options['btn_catalogue']);
+        $this->assertSame('link_add', $options['btn_add']);
+        $this->assertSame('link_list', $options['btn_list']);
+        $this->assertSame('link_delete', $options['btn_delete']);
+        $this->assertSame('SonataAdminBundle', $options['btn_catalogue']);
     }
 }

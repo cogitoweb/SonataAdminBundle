@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Sonata package.
+ * This file is part of the Sonata Project package.
  *
  * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
  *
@@ -9,13 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Sonata\AdminBundle\Model;
+namespace Sonata\AdminBundle\Tests\Model;
 
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Sonata\AdminBundle\Model\AuditManager;
 
 /**
- * Test for AuditManager
+ * Test for AuditManager.
  *
  * @author Andrej Hudec <pulzarraider@gmail.com>
  */
@@ -30,18 +29,16 @@ class AuditManagerTest extends \PHPUnit_Framework_TestCase
 
         $container->expects($this->any())
             ->method('get')
-            ->will($this->returnCallback(function($id) use ($fooReader, $barReader) {
-                    switch ($id) {
-                        case 'foo_reader':
-                            return $fooReader;
-                            break;
+            ->will($this->returnCallback(function ($id) use ($fooReader, $barReader) {
+                switch ($id) {
+                    case 'foo_reader':
+                        return $fooReader;
 
-                        case 'bar_reader':
-                            return $barReader;
-                            break;
-                    }
+                    case 'bar_reader':
+                        return $barReader;
+                }
 
-                    return null;
+                return;
             }));
 
         $auditManager = new AuditManager($container);

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Sonata package.
+ * This file is part of the Sonata Project package.
  *
  * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
  *
@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Sonata\AdminBundle\Tests\Controller;
+namespace Sonata\AdminBundle\Tests\Util;
 
 use Sonata\AdminBundle\Util\AdminObjectAclManipulator;
 
@@ -28,6 +28,6 @@ class AdminObjectAclManipulatorTest extends \PHPUnit_Framework_TestCase
     public function testGetMaskBuilder()
     {
         $adminObjectAclManipulator = $this->createAdminObjectAclManipulator();
-        $this->assertEquals(self::MASK_BUILDER_CLASS, $adminObjectAclManipulator->getMaskBuilderClass());
+        $this->assertSame(self::MASK_BUILDER_CLASS, $adminObjectAclManipulator->getMaskBuilderClass());
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Sonata package.
+ * This file is part of the Sonata Project package.
  *
  * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
  *
@@ -14,17 +14,11 @@ namespace Sonata\AdminBundle\Tests\Admin;
 use Sonata\AdminBundle\Admin\AdminHelper;
 use Sonata\AdminBundle\Admin\Pool;
 use Symfony\Component\Form\FormBuilder;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\Form\FormFactoryInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Sonata\AdminBundle\Admin\FieldDescriptionInterface;
-use Sonata\AdminBundle\Admin\AdminInterface;
 use Symfony\Component\Form\FormView;
 
 class AdminHelperTest extends \PHPUnit_Framework_TestCase
 {
-
-    public function testgetChildFormBuilder()
+    public function testGetChildFormBuilder()
     {
         $container = $this->getMock('Symfony\Component\DependencyInjection\ContainerInterface');
 
@@ -43,7 +37,7 @@ class AdminHelperTest extends \PHPUnit_Framework_TestCase
         $this->isInstanceOf('Symfony\Component\Form\FormBuilder', $helper->getChildFormBuilder($formBuilder, 'test_elementId'));
     }
 
-    public function testgetChildFormView()
+    public function testGetChildFormView()
     {
         $container = $this->getMock('Symfony\Component\DependencyInjection\ContainerInterface');
 
@@ -59,7 +53,7 @@ class AdminHelperTest extends \PHPUnit_Framework_TestCase
         $this->isInstanceOf('Symfony\Component\Form\FormView', $helper->getChildFormView($formView, 'test_elementId'));
     }
 
-    public function testaddNewInstance()
+    public function testAddNewInstance()
     {
         $container = $this->getMock('Symfony\Component\DependencyInjection\ContainerInterface');
 
@@ -77,6 +71,45 @@ class AdminHelperTest extends \PHPUnit_Framework_TestCase
         $object->expects($this->once())->method('addFooBar');
 
         $helper->addNewInstance($object, $fieldDescription);
+    }
 
+    public function testAddNewInstancePlural()
+    {
+        $container = $this->getMock('Symfony\Component\DependencyInjection\ContainerInterface');
+
+        $pool = new Pool($container, 'title', 'logo.png');
+        $helper = new AdminHelper($pool);
+
+        $admin = $this->getMock('Sonata\AdminBundle\Admin\AdminInterface');
+        $admin->expects($this->once())->method('getNewInstance')->will($this->returnValue(new \stdClass()));
+
+        $fieldDescription = $this->getMock('Sonata\AdminBundle\Admin\FieldDescriptionInterface');
+        $fieldDescription->expects($this->once())->method('getAssociationAdmin')->will($this->returnValue($admin));
+        $fieldDescription->expects($this->once())->method('getAssociationMapping')->will($this->returnValue(array('fieldName' => 'fooBars')));
+
+        $object = $this->getMock('sdtClass', array('addFooBar'));
+        $object->expects($this->once())->method('addFooBar');
+
+        $helper->addNewInstance($object, $fieldDescription);
+    }
+
+    public function testAddNewInstanceInflector()
+    {
+        $container = $this->getMock('Symfony\Component\DependencyInjection\ContainerInterface');
+
+        $pool = new Pool($container, 'title', 'logo.png');
+        $helper = new AdminHelper($pool);
+
+        $admin = $this->getMock('Sonata\AdminBundle\Admin\AdminInterface');
+        $admin->expects($this->once())->method('getNewInstance')->will($this->returnValue(new \stdClass()));
+
+        $fieldDescription = $this->getMock('Sonata\AdminBundle\Admin\FieldDescriptionInterface');
+        $fieldDescription->expects($this->once())->method('getAssociationAdmin')->will($this->returnValue($admin));
+        $fieldDescription->expects($this->once())->method('getAssociationMapping')->will($this->returnValue(array('fieldName' => 'entries')));
+
+        $object = $this->getMock('sdtClass', array('addEntry'));
+        $object->expects($this->once())->method('addEntry');
+
+        $helper->addNewInstance($object, $fieldDescription);
     }
 }
