@@ -116,11 +116,15 @@ file that was distributed with this source code.
                                                         </script>
 
                                                         {% block batch_actions %}
-                                                            <label class="checkbox" for="{{ admin.uniqid }}_all_elements">
-                                                                <input type="checkbox" name="all_elements" id="{{ admin.uniqid }}_all_elements">
-                                                                {{ 'all_elements'|trans({}, 'SonataAdminBundle') }}
-                                                                 ({{ admin.datagrid.pager.nbresults }})
-                                                            </label>
+															{#
+															 # 2016-01-15 Daniele Artico
+															 # Disable "select all" option for batch actions
+															 #}
+{#                                                            <label class="checkbox" for="{{ admin.uniqid }}_all_elements">                       #}
+{#                                                                <input type="checkbox" name="all_elements" id="{{ admin.uniqid }}_all_elements"> #}
+{#                                                                {{ 'all_elements'|trans({}, 'SonataAdminBundle') }}                              #}
+{#                                                                 ({{ admin.datagrid.pager.nbresults }})                                          #}
+{#                                                            </label>                                                                             #}
 
                                                             <select name="action" style="width: auto; height: auto" class="form-control">
                                                                 {% for action, options in batchactions %}
