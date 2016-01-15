@@ -22,14 +22,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyPath;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Validator\ValidatorInterface as LegacyValidatorInterface;
-use Sonata\AdminBundle\Admin\Pool;
-use Sonata\AdminBundle\Admin\AdminHelper;
-use Sonata\AdminBundle\Admin\AdminInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Sonata\AdminBundle\Filter\FilterInterface;
 
 /**
  * Class HelperController.
@@ -484,6 +479,8 @@ class HelperController
         // 2z -> per autocomplete
         if ($fieldDescription->getType() !== 'sonata_type_model_autocomplete') {
             throw new \RuntimeException(sprintf('Unsupported form type "%s" for field "%s".', $fieldDescription->getType(), $field));
+		}
+
         if (null === $fieldDescription->getTargetEntity()) {
             throw new \RuntimeException(sprintf('No associated entity with field "%s".', $field));
         }

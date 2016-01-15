@@ -157,5 +157,4 @@ class ModelAutocompleteType extends AbstractType
     {
         return 'form';
     }
-
-    /**
+}
