@@ -26,6 +26,10 @@ use Symfony\Component\OptionsResolver\OptionsResolverInterface;
  */
 class ModelAutocompleteType extends AbstractType
 {
+	const SEARCH_TYPE_BEGINS_WITH = 'begins_with';
+	const SEARCH_TYPE_CONTAINS    = 'contains';
+	const SEARCH_TYPE_ENDS_WITH   = 'ends_with';
+
     /**
      * {@inheritdoc}
      */
@@ -33,7 +37,11 @@ class ModelAutocompleteType extends AbstractType
     {
         $builder->addViewTransformer(new ModelToIdPropertyTransformer($options['model_manager'], $options['class'], $options['property'], $options['multiple'], $options['to_string_callback']), true);
 
-        $builder->add('title', 'text', array('attr' => $options['attr'], 'property_path' => '[labels][0]'));
+		/*
+		 * 2016-01-15 Daniele Artico
+		 * Set title width to 5 columns
+		 */
+        $builder->add('title', 'text', array('attr' => $options['attr' => ['class' => 'col-md-5']], 'property_path' => '[labels][0]'));
         $builder->add('identifiers', 'collection', array('type' => 'hidden', 'allow_add' => true, 'allow_delete' => true));
 
         $builder->setAttribute('property', $options['property']);
@@ -62,6 +70,12 @@ class ModelAutocompleteType extends AbstractType
         $view->vars['req_param_name_search'] = $options['req_param_name_search'];
         $view->vars['req_param_name_page_number'] = $options['req_param_name_page_number'];
         $view->vars['req_param_name_items_per_page'] = $options['req_param_name_items_per_page'];
+
+		/*
+		 * 2016-01-15 Daniele Artico
+		 * Added parameter for back compatibility
+		 */
+		$view->vars['req_param_name_page_limit'] = $options['req_param_name_page_limit'];
 
         // dropdown list css class
         $view->vars['dropdown_css_class'] = $options['dropdown_css_class'];
@@ -96,8 +110,20 @@ class ModelAutocompleteType extends AbstractType
 
             // dropdown list css class
             'dropdown_css_class'              => 'sonata-autocomplete-dropdown',
+			
+			/*
+			 * 2016-01-15 Daniele Artico
+			 * Added parameters for back compatibility
+			 */
+			'property'                        => null,
+			'search_type'                     => self::SEARCH_TYPE_CONTAINS,
+			'req_param_name_page_limit'       => 'limit'
         ));
 
+        /*
+		 * 2016-01-15 Daniele Artico
+		 * "property" parameter is mandatory
+		 */
         $resolver->setRequired(array('property'));
     }
 
