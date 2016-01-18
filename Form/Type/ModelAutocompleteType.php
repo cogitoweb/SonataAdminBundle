@@ -41,7 +41,7 @@ class ModelAutocompleteType extends AbstractType
 		 * 2016-01-15 Daniele Artico
 		 * Set title width to 5 columns
 		 */
-        $builder->add('title', 'text', array('attr' => $options['attr' => ['class' => 'col-md-5']], 'property_path' => '[labels][0]'));
+        $builder->add('title', 'text', ['attr' => ['class' => 'col-md-5'], 'property_path' => '[labels][0]']);
         $builder->add('identifiers', 'collection', array('type' => 'hidden', 'allow_add' => true, 'allow_delete' => true));
 
         $builder->setAttribute('property', $options['property']);
