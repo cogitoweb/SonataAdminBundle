@@ -4,6 +4,7 @@ Uploading and saving documents (including images) using DoctrineORM and SonataAd
 This is a full working example of a file upload management method using
 SonataAdmin with the DoctrineORM persistence layer.
 
+
 Pre-requisites
 --------------
 
@@ -14,6 +15,7 @@ Pre-requisites
 - you understand file permissions on your web server and can manage the permissions
   needed to allow your web server to upload and update files in the relevant
   folder(s)
+
 
 The recipe
 ----------
@@ -29,6 +31,7 @@ To get file uploads working with SonataAdmin we need to:
 - add a file upload field to our ImageAdmin
 - 'touch' the Entity when a new file is uploaded so its lifecycle events are triggered
 
+
 Basic configuration - the Entity
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -42,38 +45,33 @@ upload timestamp.
 
     .. code-block:: yaml
 
-        # src/AppBundle/Resources/config/Doctrine/Image.orm.yml
+        # YourNS/YourBundle/Resources/config/Doctrine/Image.orm.yml
 
-        AppBundleBundle\Entity\Image:
-            type: entity
-            repositoryClass: AppBundle\Entity\Repositories\ImageRepository
-            table: images
+        YourNS\YourBundle\Entity\Image:
+          type: entity
+          repositoryClass: YourNS\YourBundle\Entity\Repositories\ImageRepository
+          table: images
+          id:
             id:
-            id:
-                type:         integer
-                generator:    { strategy: AUTO }
-            fields:
+              type:         integer
+              generator:    { strategy: AUTO }
+          fields:
             filename:
-                type:         string
-                length:       100
-
-            # changed when files are uploaded, to force preUpdate and postUpdate to fire
-            updated:
-                type:         datetime
-                nullable:     true
-
+              type:         string
+              length:       100
+            updated:        # changed when files are uploaded, to force preUpdate and postUpdate to fire
+              type:         datetime
+              nullable:     true
             # ... other fields ...
-            lifecycleCallbacks:
-                prePersist:   [ lifecycleFileUpload ]
-                preUpdate:    [ lifecycleFileUpload ]
+          lifecycleCallbacks:
+              prePersist:   [ lifecycleFileUpload ]
+              preUpdate:    [ lifecycleFileUpload ]
 
 We then have the following methods in our ``Image`` class to manage file uploads:
 
 .. code-block:: php
 
-    <?php
-    // src/AppBundle/Bundle/Entity/Image.php
-
+    // YourNS/YourBundle/Entity/Image.php
     const SERVER_PATH_TO_IMAGE_FOLDER = '/server/path/to/images';
 
     /**
@@ -116,7 +114,7 @@ We then have the following methods in our ``Image`` class to manage file uploads
 
         // move takes the target directory and target filename as params
         $this->getFile()->move(
-            self::SERVER_PATH_TO_IMAGE_FOLDER,
+            Image::SERVER_PATH_TO_IMAGE_FOLDER,
             $this->getFile()->getClientOriginalName()
         );
 
@@ -130,17 +128,15 @@ We then have the following methods in our ``Image`` class to manage file uploads
     /**
      * Lifecycle callback to upload the file to the server
      */
-    public function lifecycleFileUpload()
-    {
+    public function lifecycleFileUpload() {
         $this->upload();
     }
 
     /**
      * Updates the hash value to force the preUpdate and postUpdate events to fire
      */
-    public function refreshUpdated()
-    {
-        $this->setUpdated(new \DateTime());
+    public function refreshUpdated() {
+        $this->setUpdated(new \DateTime("now"));
     }
 
     // ... the rest of your class lives under here, including the generated fields
@@ -155,6 +151,7 @@ this filename field *is* persisted to the database.
 Most of the above is simply from the `uploading files with Doctrine and Symfony`_ cookbook
 entry. It is highly recommended reading!
 
+
 Basic configuration - the Admin class
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -167,34 +164,29 @@ Both of these are straightforward when you know what to do:
 
 .. code-block:: php
 
-    <?php
-    // src/AppBundle/Admin/ImageAdmin.php
+    // YourNS/YourBundle/Admin/ImageAdmin.php
 
-    class ImageAdmin extends AbstractAdmin
+    ...
+
+    class ImageAdmin extends Admin
     {
         protected function configureFormFields(FormMapper $formMapper)
         {
             $formMapper
-                ->add('file', 'file', array(
-                    'required' => false
-                ))
-
-                // ...
+                ->add('file', 'file', array('required' => false))
+                // ... other fields can go here ...
             ;
         }
 
-        public function prePersist($image)
-        {
+        public function prePersist($image) {
             $this->manageFileUpload($image);
         }
 
-        public function preUpdate($image)
-        {
+        public function preUpdate($image) {
             $this->manageFileUpload($image);
         }
 
-        private function manageFileUpload($image)
-        {
+        private function manageFileUpload($image) {
             if ($image->getFile()) {
                 $image->refreshUpdated();
             }
@@ -224,30 +216,20 @@ not triggered when the parent is submitted. To deal with this we need to use the
 Admin's lifecycle events to trigger the file management when needed.
 
 In this example we have a Page class which has three one-to-one Image relationships
-defined, linkedImage1 to linkedImage3. The PostAdmin class' form field configuration
+defined, linkedImage1 to linkedImage3. The PageAdmin class' form field configuration
 looks like this:
 
 .. code-block:: php
 
-    <?php
-    // src/AppBundle/Admin/PostAdmin.php
-
-    class PostAdmin extends AbstractAdmin
+    class PageAdmin extends Admin
     {
         protected function configureFormFields(FormMapper $formMapper)
         {
             $formMapper
-                ->add('linkedImage1', 'sonata_type_admin', array(
-                    'delete' => false
-                ))
-                ->add('linkedImage2', 'sonata_type_admin', array(
-                    'delete' => false
-                ))
-                ->add('linkedImage3', 'sonata_type_admin', array(
-                    'delete' => false
-                ))
-
-                // ...
+                ->add('linkedImage1', 'sonata_type_admin', array('delete' => false))
+                ->add('linkedImage2', 'sonata_type_admin', array('delete' => false))
+                ->add('linkedImage3', 'sonata_type_admin', array('delete' => false))
+                // ... other fields go here ...
             ;
         }
 
@@ -257,42 +239,33 @@ looks like this:
 This is easy enough - we have embedded three fields, which will then use our ``ImageAdmin``
 class to determine which fields to show.
 
-In our PostAdmin we then have the following code to manage the relationships' lifecycles:
+In PageAdmin we then have the following code to manage the relationships' lifecycles:
 
 .. code-block:: php
 
-    <?php
-    // src/AppBundle/Admin/PostAdmin.php
-
-    class PostAdmin extends AbstractAdmin
+    class PageAdmin extends Admin
     {
         // ...
 
-        public function prePersist($page)
-        {
+        public function prePersist($page) {
             $this->manageEmbeddedImageAdmins($page);
         }
-
-        public function preUpdate($page)
-        {
+        public function preUpdate($page) {
             $this->manageEmbeddedImageAdmins($page);
         }
-
-        private function manageEmbeddedImageAdmins($page)
-        {
+        private function manageEmbeddedImageAdmins($page) {
             // Cycle through each field
             foreach ($this->getFormFieldDescriptions() as $fieldName => $fieldDescription) {
                 // detect embedded Admins that manage Images
                 if ($fieldDescription->getType() === 'sonata_type_admin' &&
                     ($associationMapping = $fieldDescription->getAssociationMapping()) &&
-                    $associationMapping['targetEntity'] === 'AppBundle\Entity\Image'
+                    $associationMapping['targetEntity'] === 'YourNS\YourBundle\Entity\Image'
                 ) {
-                    $getter = 'get'.$fieldName;
-                    $setter = 'set'.$fieldName;
+                    $getter = 'get' . $fieldName;
+                    $setter = 'set' . $fieldName;
 
                     /** @var Image $image */
                     $image = $page->$getter();
-
                     if ($image) {
                         if ($image->getFile()) {
                             // update the Image to trigger file management
@@ -321,6 +294,7 @@ trigger the same ``refreshUpdated()`` method as before.
 The final check is to prevent a glitch where Symfony tries to create blank Images when nothing
 has been entered in the form. We detect this case and null the relationship to stop this from
 happening.
+
 
 Notes
 -----

@@ -23,11 +23,7 @@ class ModelTypeListTest extends TypeTestCase
 
         $optionResolver = new OptionsResolver();
 
-        if (!method_exists('Symfony\Component\Form\AbstractType', 'getBlockPrefix')) {
-            $type->setDefaultOptions($optionResolver);
-        } else {
-            $type->configureOptions($optionResolver);
-        }
+        $type->setDefaultOptions($optionResolver);
 
         $options = $optionResolver->resolve();
 

@@ -16,20 +16,12 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 
-/**
- * Class MergeCollectionListener.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
- */
 class MergeCollectionListener implements EventSubscriberInterface
 {
-    /**
-     * @var ModelManagerInterface
-     */
     protected $modelManager;
 
     /**
-     * @param ModelManagerInterface $modelManager
+     * @param \Sonata\AdminBundle\Model\ModelManagerInterface $modelManager
      */
     public function __construct(ModelManagerInterface $modelManager)
     {
@@ -47,12 +39,12 @@ class MergeCollectionListener implements EventSubscriberInterface
     }
 
     /**
-     * @param FormEvent $event
+     * @param \Symfony\Component\Form\FormEvent $event
      */
     public function onBind(FormEvent $event)
     {
         $collection = $event->getForm()->getData();
-        $data = $event->getData();
+        $data       = $event->getData();
 
         // looks like there is no way to remove other listeners
         $event->stopPropagation();

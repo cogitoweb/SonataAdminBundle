@@ -12,21 +12,10 @@
 namespace Sonata\AdminBundle\Datagrid;
 
 /**
- * Interface ProxyQueryInterface
- * Used by the Datagrid to build the query.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
+ * Interface used by the Datagrid to build the query.
  */
 interface ProxyQueryInterface
 {
-    /**
-     * @param string $name
-     * @param array  $args
-     *
-     * @return mixed
-     */
-    public function __call($name, $args);
-
     /**
      * @param array $params
      * @param null  $hydrationMode
@@ -34,6 +23,14 @@ interface ProxyQueryInterface
      * @return mixed
      */
     public function execute(array $params = array(), $hydrationMode = null);
+
+    /**
+     * @param string $name
+     * @param array  $args
+     *
+     * @return mixed
+     */
+    public function __call($name, $args);
 
     /**
      * @param array $parentAssociationMappings

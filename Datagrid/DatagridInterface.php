@@ -11,24 +11,17 @@
 
 namespace Sonata\AdminBundle\Datagrid;
 
-use Sonata\AdminBundle\Admin\FieldDescriptionCollection;
 use Sonata\AdminBundle\Filter\FilterInterface;
-use Symfony\Component\Form\FormInterface;
 
-/**
- * Interface DatagridInterface.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
- */
 interface DatagridInterface
 {
     /**
-     * @return PagerInterface
+     * @return \Sonata\AdminBundle\Datagrid\PagerInterface
      */
     public function getPager();
 
     /**
-     * @return ProxyQueryInterface
+     * @return \Sonata\AdminBundle\Datagrid\ProxyQueryInterface
      */
     public function getQuery();
 
@@ -37,12 +30,14 @@ interface DatagridInterface
      */
     public function getResults();
 
+    /**
+     */
     public function buildPager();
 
     /**
-     * @param FilterInterface $filter
+     * @param \Sonata\AdminBundle\Filter\FilterInterface $filter
      *
-     * @return FilterInterface
+     * @return \Sonata\AdminBundle\Filter\FilterInterface
      */
     public function addFilter(FilterInterface $filter);
 
@@ -53,8 +48,6 @@ interface DatagridInterface
 
     /**
      * Reorder filters.
-     *
-     * @param array $keys
      */
     public function reorderFilters(array $keys);
 
@@ -64,7 +57,7 @@ interface DatagridInterface
     public function getValues();
 
     /**
-     * @return FieldDescriptionCollection
+     * @return array
      */
     public function getColumns();
 
@@ -76,14 +69,14 @@ interface DatagridInterface
     public function setValue($name, $operator, $value);
 
     /**
-     * @return FormInterface
+     * @return \Symfony\Component\Form\Form
      */
     public function getForm();
 
     /**
      * @param string $name
      *
-     * @return FilterInterface
+     * @return \Sonata\AdminBundle\Filter\FilterInterface
      */
     public function getFilter($name);
 
@@ -103,9 +96,4 @@ interface DatagridInterface
      * @return bool
      */
     public function hasActiveFilters();
-
-    /**
-     * @return bool
-     */
-    public function hasDisplayableFilters();
 }

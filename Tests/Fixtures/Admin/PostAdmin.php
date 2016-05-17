@@ -2,9 +2,9 @@
 
 namespace Sonata\AdminBundle\Tests\Fixtures\Admin;
 
-use Sonata\AdminBundle\Admin\AbstractAdmin;
+use Sonata\AdminBundle\Admin\Admin;
 
-class PostAdmin extends AbstractAdmin
+class PostAdmin extends Admin
 {
     protected $metadataClass = null;
 

@@ -8,6 +8,10 @@ html {
     min-height: 100%;
 }
 
+body {
+    margin-bottom: 20px;
+}
+
 footer {
     position: absolute;
     bottom: 0;
@@ -262,15 +266,6 @@ table.sonata-ba-list {
     font-size: 14px;
 }
 
-table.sonata-ba-list img {
-    max-width: 100%;
-    height: auto;
-}
-
-table.sonata-ba-list td {
-    overflow: auto;
-}
-
 td.sonata-ba-list-label {
     color: #565656;
     font-weight: bold;
@@ -311,17 +306,6 @@ form.sonata-filter-form.form-stacked {
     padding-left: 0;
 }
 
-body.fixed .sonata-list-table {
-    position: relative;
-    margin-left: 15px;
-    margin-right: 15px;
-    margin-bottom: 5px;
-}
-
-.navbar-nav.navbar-right:last-child {
-    margin-right: 0;
-}
-
 /* Overrides */
 
 /* x-editable */
@@ -347,152 +331,11 @@ td.sonata-ba-list-field .editable-empty:not(.editable-open) {
     content: "\2192 ";
 }
 
-/* bootstrap */
-.input-group-addon {
-    width: auto; /* See https://github.com/sonata-project/SonataAdminBundle/issues/2950 */
-}
-
-/**
- * Make checkbox / radio label consistant with other labels
- */
-.checkbox label,
-.radio label {
-    font-weight: 700;
-}
-
-/**
- * The iCheck checkboxes & radios have 0 margin by default,
- * add some space for the label text.
- */
-.checkbox div[class^="icheckbox"],
-.checkbox-inline div[class^="icheckbox"],
-.radio div[class^="iradio"],
-.radio-inline div[class^="iradio"] {
-    position: relative;
-    margin-top: 4px \9;
-    margin-left: -20px;
-    margin-right: 5px;
-    margin-top: -3px;
-}
-.form-inline .checkbox div[class^="icheckbox"],
-.form-inline .checkbox-inline div[class^="icheckbox"],
-.form-inline .radio div[class^="iradio"],
-.form-inline .radio-inline div[class^="iradio"] {
-    position: relative;
-    margin-top: 4px \9;
-    margin-left: 0;
-    margin-right: 5px;
-    margin-top: -3px;
-}
-/* Hide Delete checkbox on sonata_type_collection tables */
-.sonata-ba-field-inline-table td > div.checkbox > label > .control-label__text {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0,0,0,0);
-    border: 0;
-}
-
 /* select2 */
-.select2-choice, .select2-choices, .select2-drop {
-    border-radius: 0 !important;
+div.select2-container {
+    margin-left: 0 !important;
 }
 
-/* Used for the mosaic view */
-td > div.row {
-    padding: 0;
-    margin: 0;
-}
-
-div.mosaic-box {
-    padding: 2px;
-    border-radius: 3px;
-}
-
-
-div.mosaic-inner-box {
-    position: relative;
-}
-
-div.mosaic-inner-box-hover {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: 4px 4px 0 0;
-    background-color: rgba(255, 255, 255, .8);
-    transition: .25s opacity;
-    padding: 5px 10px;
-}
-
-div.mosaic-inner-box:hover > div.mosaic-inner-box-hover {
-    opacity: 1;
-}
-
-div.mosaic-inner-box > div.mosaic-inner-box-hover {
-    opacity: 0;
-}
-
-div.mosaic-inner-box img {
-    width: 100%;
-    height: auto;
-    border-radius: 4px 4px 0 0;
-}
-
-div.mosaic-box-outter {
-    background-size: 100% auto;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background-color: #fff;
-}
-
-div.mosaic-inner-box {
-    height: 100px;
-    border-bottom: none;
-    overflow: hidden;
-}
-
-div.mosaic-inner-text {
-    background: white;
-    border-top: none;
-    padding: 3px;
-    border-radius: 0 0 5px 5px;
-    z-index: 2;
-    position: relative;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.mosaic-inner-link {
-    vertical-align: middle;
-}
-
-.mosaic-box-label {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-}
-
-div.mosaic-box.sonata-ba-list-row-selected > div.mosaic-inner-box {
-    border: 1px solid #333;
-    border-bottom: none;
-}
-
-div.mosaic-box.sonata-ba-list-row-selected > div.mosaic-inner-text {
-    border: 1px solid #333;
-    border-top: none;
-}
-
-div.sonata-filters-box div.form-group div.form-group {
-    margin: 0;
-}
-
-div.sonata-filters-box div.form-group span.input-group-addon {
-    padding: 3px 10px;
-    font-size: 13px;
+div.select2-drop ul {
+    margin: 0 !important;
 }

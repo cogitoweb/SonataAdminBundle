@@ -11,11 +11,6 @@
 
 namespace Sonata\AdminBundle\Datagrid;
 
-/**
- * Interface PagerInterface.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
- */
 interface PagerInterface
 {
     /**
@@ -47,7 +42,7 @@ interface PagerInterface
     /**
      * Set query.
      *
-     * @param ProxyQueryInterface $query
+     * @param mixed $query
      */
     public function setQuery($query);
 
@@ -57,18 +52,4 @@ interface PagerInterface
      * @return array
      */
     public function getResults();
-
-    /**
-     * Sets the maximum number of page numbers.
-     *
-     * @param int $maxPageLinks
-     */
-    public function setMaxPageLinks($maxPageLinks);
-
-    /**
-     * Returns the maximum number of page numbers.
-     *
-     * @return int
-     */
-    public function getMaxPageLinks();
 }

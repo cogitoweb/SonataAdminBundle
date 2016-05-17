@@ -15,17 +15,12 @@ use Sonata\AdminBundle\Admin\FieldDescriptionInterface;
 use Symfony\Component\Form\FormBuilder;
 use Symfony\Component\Form\FormFactoryInterface;
 
-/**
- * Interface FormContractorInterface.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
- */
 interface FormContractorInterface extends BuilderInterface
 {
     /**
      * @abstract
      *
-     * @param FormFactoryInterface $formFactory
+     * @param \Symfony\Component\Form\FormFactoryInterface $formFactory
      */
     public function __construct(FormFactoryInterface $formFactory);
 
@@ -42,8 +37,8 @@ interface FormContractorInterface extends BuilderInterface
     /**
      * @abstract
      *
-     * @param string                    $type
-     * @param FieldDescriptionInterface $fieldDescription
+     * @param string                                              $type
+     * @param \Sonata\AdminBundle\Admin\FieldDescriptionInterface $fieldDescription
      *
      * @return array
      */

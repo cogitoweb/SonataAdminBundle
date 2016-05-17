@@ -11,31 +11,14 @@
 
 namespace Sonata\AdminBundle\Filter;
 
-/**
- * Class Filter.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
- */
 abstract class Filter implements FilterInterface
 {
-    /**
-     * @var string|null
-     */
     protected $name = null;
 
-    /**
-     * @var mixed|null
-     */
     protected $value = null;
 
-    /**
-     * @var array
-     */
     protected $options = array();
 
-    /**
-     * @var string
-     */
     protected $condition;
 
     /**
@@ -60,8 +43,7 @@ abstract class Filter implements FilterInterface
      */
     public function getFormName()
     {
-        /*
-           Symfony default form class sadly can't handle
+        /* Symfony default form class sadly can't handle
            form element with dots in its name (when data
            get bound, the default dataMapper is a PropertyPathMapper).
            So use this trick to avoid any issue.
@@ -104,26 +86,6 @@ abstract class Filter implements FilterInterface
     public function getFieldOptions()
     {
         return $this->getOption('field_options', array('required' => false));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getFieldOption($name, $default = null)
-    {
-        if (isset($this->options['field_options'][$name]) && is_array($this->options['field_options'])) {
-            return $this->options['field_options'][$name];
-        }
-
-        return $default;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setFieldOption($name, $value)
-    {
-        $this->options['field_options'][$name] = $value;
     }
 
     /**
@@ -199,11 +161,7 @@ abstract class Filter implements FilterInterface
      */
     public function setOptions(array $options)
     {
-        $this->options = array_merge(
-            array('show_filter' => null, 'advanced_filter' => true),
-            $this->getDefaultOptions(),
-            $options
-        );
+        $this->options = array_merge($this->getDefaultOptions(), $options);
     }
 
     /**

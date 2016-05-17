@@ -47,12 +47,15 @@ class ListAdminCommandTest extends \PHPUnit_Framework_TestCase
                         $pool->setAdminServiceIds(array('acme.admin.foo', 'acme.admin.bar'));
 
                         return $pool;
+                        break;
 
                     case 'acme.admin.foo':
                         return $admin1;
+                        break;
 
                     case 'acme.admin.bar':
                         return $admin2;
+                        break;
                 }
 
                 return;

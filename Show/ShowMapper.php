@@ -18,10 +18,7 @@ use Sonata\AdminBundle\Builder\ShowBuilderInterface;
 use Sonata\AdminBundle\Mapper\BaseGroupedMapper;
 
 /**
- * Class ShowMapper
  * This class is used to simulate the Form API.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
  */
 class ShowMapper extends BaseGroupedMapper
 {
@@ -35,7 +32,7 @@ class ShowMapper extends BaseGroupedMapper
     public function __construct(ShowBuilderInterface $showBuilder, FieldDescriptionCollection $list, AdminInterface $admin)
     {
         parent::__construct($showBuilder, $admin);
-        $this->list = $list;
+        $this->list        = $list;
     }
 
     /**
@@ -49,10 +46,6 @@ class ShowMapper extends BaseGroupedMapper
      */
     public function add($name, $type = null, array $fieldDescriptionOptions = array())
     {
-        if ($this->apply !== null && !$this->apply) {
-            return $this;
-        }
-
         $fieldKey = ($name instanceof FieldDescriptionInterface) ? $name->getName() : $name;
 
         $this->addFieldToCurrentGroup($fieldKey);
@@ -60,16 +53,12 @@ class ShowMapper extends BaseGroupedMapper
         if ($name instanceof FieldDescriptionInterface) {
             $fieldDescription = $name;
             $fieldDescription->mergeOptions($fieldDescriptionOptions);
-        } elseif (is_string($name)) {
-            if (!$this->admin->hasShowFieldDescription($name)) {
-                $fieldDescription = $this->admin->getModelManager()->getNewFieldDescriptionInstance(
-                    $this->admin->getClass(),
-                    $name,
-                    $fieldDescriptionOptions
-                );
-            } else {
-                throw new \RuntimeException(sprintf('Duplicate field name "%s" in show mapper. Names should be unique.', $name));
-            }
+        } elseif (is_string($name) && !$this->admin->hasShowFieldDescription($name)) {
+            $fieldDescription = $this->admin->getModelManager()->getNewFieldDescriptionInstance(
+                $this->admin->getClass(),
+                $name,
+                $fieldDescriptionOptions
+            );
         } else {
             throw new \RuntimeException('invalid state');
         }
@@ -111,14 +100,6 @@ class ShowMapper extends BaseGroupedMapper
         $this->list->remove($key);
 
         return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    final public function keys()
-    {
-        return array_keys($this->list->getElements());
     }
 
     /**

@@ -12,25 +12,26 @@
 namespace Sonata\AdminBundle\Block;
 
 use Sonata\AdminBundle\Admin\Pool;
+use Sonata\AdminBundle\Form\FormMapper;
+use Sonata\AdminBundle\Validator\ErrorElement;
 use Sonata\BlockBundle\Block\BaseBlockService;
 use Sonata\BlockBundle\Block\BlockContextInterface;
+use Sonata\BlockBundle\Model\BlockInterface;
 use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 /**
- * Class AdminListBlockService.
- *
- * @author Thomas Rabaix <thomas.rabaix@sonata-project.org>
+ * @author     Thomas Rabaix <thomas.rabaix@sonata-project.org>
  */
 class AdminListBlockService extends BaseBlockService
 {
     protected $pool;
 
     /**
-     * @param string          $name
-     * @param EngineInterface $templating
-     * @param Pool            $pool
+     * @param string                                                     $name
+     * @param \Symfony\Bundle\FrameworkBundle\Templating\EngineInterface $templating
+     * @param \Sonata\AdminBundle\Admin\Pool                             $pool
      */
     public function __construct($name, EngineInterface $templating, Pool $pool)
     {
@@ -56,11 +57,26 @@ class AdminListBlockService extends BaseBlockService
         }
 
         return $this->renderPrivateResponse($this->pool->getTemplate('list_block'), array(
-            'block' => $blockContext->getBlock(),
-            'settings' => $settings,
-            'admin_pool' => $this->pool,
-            'groups' => $visibleGroups,
+            'block'         => $blockContext->getBlock(),
+            'settings'      => $settings,
+            'admin_pool'    => $this->pool,
+            'groups'        => $visibleGroups,
         ), $response);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function validateBlock(ErrorElement $errorElement, BlockInterface $block)
+    {
+        // TODO: Implement validateBlock() method.
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function buildEditForm(FormMapper $formMapper, BlockInterface $block)
+    {
     }
 
     /**
@@ -74,19 +90,14 @@ class AdminListBlockService extends BaseBlockService
     /**
      * {@inheritdoc}
      */
-    public function configureSettings(OptionsResolver $resolver)
+    public function setDefaultSettings(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
             'groups' => false,
         ));
 
-        // Symfony < 2.6 BC
-        if (method_exists($resolver, 'setNormalizer')) {
-            $resolver->setAllowedTypes('groups', array('bool', 'array'));
-        } else {
-            $resolver->setAllowedTypes(array(
-                'groups' => array('bool', 'array'),
-            ));
-        }
+        $resolver->setAllowedTypes(array(
+            'groups' => array('bool', 'array'),
+        ));
     }
 }

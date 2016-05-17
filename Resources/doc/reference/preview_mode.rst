@@ -8,14 +8,13 @@ The preview step can be enabled for an admin entity by overriding the public pro
 
 .. code-block:: php
 
-    <?php
-    // src/AppBundle/AdminPostAdmin.php
+    <?php // MyAdmin.php
 
-    class PostAdmin extends AbstractAdmin
+    class MyAdmin extends Admin
     {
         public $supportsPreviewMode = true;
 
-        / ..
+        /* ... */
     }
 
 This will show a new button during create/edit mode named preview.
@@ -42,7 +41,7 @@ Preview can be used to render how the object would look like in your front-end e
 However by default it uses a template similar to the one of the show action and works with
 the fields configured to be shown in the show view.
 
-Overriding the preview template ``SonataAdminBundle:CRUD:preview.html.twig`` can be done either
+Overriding the preview template (SonataAdminBundle:CRUD:preview.html.twig) can be done either
 globally through the template configuration for the key 'preview':
 
 .. configuration-block::
@@ -51,25 +50,24 @@ globally through the template configuration for the key 'preview':
 
         # app/config/config.yml
 
-        sonata_admin:
-            templates:
-                preview:  AppBundle:CRUD:preview.html.twig
+            sonata_admin:
+                templates:
+                    preview:  AcmeDemoBundle:CRUD:preview.html.twig
 
-Or per admin entity by overriding the ``getTemplate($name)`` and returning the appropriate template when the key
+
+Or per admin entity by overriding the getTemplate($name) and returning the appropriate template when the key
 matches 'preview':
+
 
 .. code-block:: php
 
-    <?php
-    // src/AppBundle/Admin/PostAdmin.php
-
-    // ...
+    <?php // MyAdmin.php
 
     public function getTemplate($name)
     {
         switch ($name) {
             case 'preview':
-                return 'AppBundle:CRUD:preview.html.twig';
+                return 'AcmeDemoBundle:CRUD:preview.html.twig';
                 break;
             default:
                 return parent::getTemplate($name);
@@ -86,21 +84,18 @@ a different object you can just set your own variables prior to calling parent()
 
 .. code-block:: jinja
 
-    {# 'AppBundle:CRUD:preview.html.twig #}
+    {# 'AcmeDemoBundle:CRUD:preview.html.twig #}
 
-    {% extends 'AppBundle::layout.html.twig' %}
+    {% extends 'AcmeDemoBundle::layout.html.twig' %}
 
     {% use 'SonataAdminBundle:CRUD:base_edit_form.html.twig' with form as parentForm %}
 
-    {% import 'SonataAdminBundle:CRUD:base_edit_form_macro.html.twig' as form_helper %}
-
-    {# a block in 'AppBundle::layout.html.twig' expecting article #}
-    {% block templateContent %}
+    {% block templateContent %}     {# a block in 'AcmeDemoBundle::layout.html.twig' expecting article #}
         {% set article = object %}
 
         {{ parent() }}
 
-        <div class="sonata-preview-form-container">
+        <div class="sonata-preview-form">
             {{ block('parentForm') }}
         </div>
 
@@ -108,22 +103,22 @@ a different object you can just set your own variables prior to calling parent()
 
     {% block formactions %}
         <button class="btn btn-success" type="submit" name="btn_preview_approve">
-            <i class="fa fa-check"></i>
+            <i class="glyphicon glyphicon-ok"></i>
             {{ 'btn_preview_approve'|trans({}, 'SonataAdminBundle') }}
         </button>
         <button class="btn btn-danger" type="submit" name="btn_preview_decline">
-            <i class="fa fa-times"></i>
+            <i class="glyphicon glyphicon-remove"></i>
             {{ 'btn_preview_decline'|trans({}, 'SonataAdminBundle') }}
         </button>
     {% endblock %}
 
 Keep in mind that the whole edit form will now appear in your view.
-Hiding the fieldset tags with css ``display:none`` will be enough to only show the buttons
+Hiding the fieldset tags with css (display:none) will be enough to only show the buttons
 (which still have to be styled according to your wishes) and create a nice preview-workflow:
 
 .. code-block:: css
 
-    .sonata-preview-form-container .row {
+    .sonata-preview-form .row {
         display: none;
     };
 
@@ -131,8 +126,10 @@ Or if you prefer less:
 
 .. code-block:: scss
 
-    div.sonata-preview-form-container {
-        .row {
-            display: none;
-        };
+    div.sonata-preview-form {
+      .row {
+        display: none;
+      };
     }
+
+

@@ -5,12 +5,13 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="sonata.admin.pool" class="Sonata\AdminBundle\Admin\Pool">
+		<!-- Cogitoweb: use CogitowebPool instead of Pool -->
+        <service id="sonata.admin.pool" class="Sonata\AdminBundle\Admin\CogitowebPool">
             <argument type="service" id="service_container" />
             <argument />
             <argument />
             <argument type="collection" />
-            <argument type="service" id="property_accessor" />
+            <argument type="collection" />
 
             <call method="setTemplates">
                 <argument>%sonata.admin.configuration.templates%</argument>
@@ -72,14 +73,12 @@
             <tag name="sonata.admin.extension" global="true" />
         </service>
 
-        <!-- lock -->
-        <service id="sonata.admin.lock.extension" class="Sonata\AdminBundle\Admin\Extension\LockExtension">
-            <tag name="sonata.admin.extension" global="true" />
-        </service>
+		<!-- Cogitoweb: CogitowebDateTime service -->
+		<service id="sonata.admin.cogitoweb_date_time" class="Sonata\AdminBundle\Services\CogitowebDateTimeService">
+			<argument type="service" id="logger" />
+		</service>
 
-        <!-- twig -->
-        <service id="sonata.admin.twig.global" class="Sonata\AdminBundle\Twig\GlobalVariables" >
-            <argument type="service" id="service_container" />
-        </service>
+		<!-- Cogitoweb: This service is kept for backward compatibility only. Use sonata.admin.cogitoweb_date_time instead. -->
+		<service id="cogitoweb_template.datetime" alias="sonata.admin.cogitoweb_date_time" />
     </services>
 </container>

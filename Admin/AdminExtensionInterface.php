@@ -18,34 +18,32 @@ use Sonata\AdminBundle\Datagrid\ProxyQueryInterface;
 use Sonata\AdminBundle\Form\FormMapper;
 use Sonata\AdminBundle\Route\RouteCollection;
 use Sonata\AdminBundle\Show\ShowMapper;
-use Sonata\CoreBundle\Validator\ErrorElement;
+use Sonata\AdminBundle\Validator\ErrorElement;
 
 /**
- * Interface AdminExtensionInterface.
  *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
  */
 interface AdminExtensionInterface
 {
     /**
-     * @param FormMapper $formMapper
+     * @param FormMapper $form
      */
-    public function configureFormFields(FormMapper $formMapper);
+    public function configureFormFields(FormMapper $form);
 
     /**
-     * @param ListMapper $listMapper
+     * @param ListMapper $list
      */
-    public function configureListFields(ListMapper $listMapper);
+    public function configureListFields(ListMapper $list);
 
     /**
-     * @param DatagridMapper $datagridMapper
+     * @param DatagridMapper $filter
      */
-    public function configureDatagridFilters(DatagridMapper $datagridMapper);
+    public function configureDatagridFilters(DatagridMapper $filter);
 
     /**
-     * @param ShowMapper $showMapper
+     * @param ShowMapper $filter
      */
-    public function configureShowFields(ShowMapper $showMapper);
+    public function configureShowFields(ShowMapper $filter);
 
     /**
      * @param AdminInterface  $admin
@@ -61,6 +59,8 @@ interface AdminExtensionInterface
      * @param string            $action
      * @param AdminInterface    $childAdmin
      *
+     * @return mixed
+     *
      * @deprecated
      */
     public function configureSideMenu(AdminInterface $admin, MenuItemInterface $menu, $action, AdminInterface $childAdmin = null);
@@ -72,6 +72,8 @@ interface AdminExtensionInterface
      * @param MenuItemInterface $menu
      * @param string            $action
      * @param AdminInterface    $childAdmin
+     *
+     * @return mixed
      */
     public function configureTabMenu(AdminInterface $admin, MenuItemInterface $menu, $action, AdminInterface $childAdmin = null);
 
@@ -86,6 +88,8 @@ interface AdminExtensionInterface
      * @param AdminInterface      $admin
      * @param ProxyQueryInterface $query
      * @param string              $context
+     *
+     * @return mixed
      */
     public function configureQuery(AdminInterface $admin, ProxyQueryInterface $query, $context = 'list');
 
@@ -101,7 +105,9 @@ interface AdminExtensionInterface
      * Get a chance to modify object instance.
      *
      * @param AdminInterface $admin
-     * @param mixed          $object
+     * @param  $object
+     *
+     * @return mixed
      */
     public function alterObject(AdminInterface $admin, $object);
 
@@ -113,36 +119,6 @@ interface AdminExtensionInterface
      * @return array
      */
     public function getPersistentParameters(AdminInterface $admin);
-
-     /**
-      * Return the controller access mapping.
-      *
-      * @param AdminInterface $admin
-      *
-      * @return array
-      */
-     public function getAccessMapping(AdminInterface $admin);
-
-    /**
-     * Returns the list of batch actions.
-     *
-     * @param AdminInterface $admin
-     * @param array          $actions
-     *
-     * @return array
-     */
-    public function configureBatchActions(AdminInterface $admin, array $actions);
-
-    /**
-     * Get a chance to modify export fields.
-     *
-     * @param AdminInterface $admin
-     * @param string[]       $fields
-     *
-     * @return string[]
-     */
-    // TODO: Uncomment in next major release
-    // public function configureExportFields(AdminInterface $admin, array $fields);
 
     /**
      * @param AdminInterface $admin
@@ -179,16 +155,4 @@ interface AdminExtensionInterface
      * @param mixed          $object
      */
     public function postRemove(AdminInterface $admin, $object);
-
-     /**
-      * Get all action buttons for an action.
-      *
-      * @param AdminInterface $admin
-      * @param array          $list
-      * @param string         $action
-      * @param object         $object
-      *
-      * @return array
-      */
-     public function configureActionButtons(AdminInterface $admin, $list, $action, $object);
 }

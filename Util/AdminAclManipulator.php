@@ -18,16 +18,8 @@ use Symfony\Component\Security\Acl\Domain\ObjectIdentity;
 use Symfony\Component\Security\Acl\Domain\RoleSecurityIdentity;
 use Symfony\Component\Security\Acl\Model\AclInterface;
 
-/**
- * Class AdminAclManipulator.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
- */
 class AdminAclManipulator implements AdminAclManipulatorInterface
 {
-    /**
-     * @var string
-     */
     protected $maskBuilderClass;
 
     /**

@@ -2,9 +2,9 @@
 
 namespace Sonata\AdminBundle\Tests\Fixtures\Admin;
 
-use Sonata\AdminBundle\Admin\AbstractAdmin;
+use Sonata\AdminBundle\Admin\Admin;
 
-class TagAdmin extends AbstractAdmin
+class TagAdmin extends Admin
 {
     public function getParentAssociationMapping()
     {

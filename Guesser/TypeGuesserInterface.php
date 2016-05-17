@@ -13,17 +13,12 @@ namespace Sonata\AdminBundle\Guesser;
 
 use Sonata\AdminBundle\Model\ModelManagerInterface;
 
-/**
- * Interface TypeGuesserInterface.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
- */
 interface TypeGuesserInterface
 {
     /**
-     * @param string                $class
-     * @param string                $property
-     * @param ModelManagerInterface $modelManager
+     * @param string                                          $class
+     * @param string                                          $property
+     * @param \Sonata\AdminBundle\Model\ModelManagerInterface $modelManager
      *
      * @return mixed
      */

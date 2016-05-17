@@ -9,14 +9,7 @@ Admin Bundle
 * `SonataDoctrinePhpcrAdminBundle <https://github.com/sonata-project/SonataDoctrinePhpcrAdminBundle>`_: integrates PHPCR with the core admin bundle (early stage)
 * `SonataPropelAdminBundle <https://github.com/sonata-project/SonataPropelAdminBundle>`_: integrates Propel with the core admin bundle (early stage)
 
-The demo website can be found in http://demo.sonata-project.org (``admin`` as user and password).
-
-**Usage examples:**
-
-* `SonataMediaBundle <https://github.com/sonata-project/SonataMediaBundle>`_: a media manager bundle
-* `SonataNewsBundle <https://github.com/sonata-project/SonataNewsBundle>`_: a news/blog bundle
-* `SonataPageBundle <https://github.com/sonata-project/SonataPageBundle>`_: a page (CMS like) bundle
-* `SonataUserBundle <https://github.com/sonata-project/SonataUserBundle>`_: integration of FOSUserBundle and SonataAdminBundle
+The demo website can be found in http://demo.sonata-project.org/admin/dashboard (``admin`` as user and password).
 
 Getting Started
 ---------------
@@ -43,6 +36,8 @@ Reference Guide
    reference/architecture
    reference/dashboard
    reference/search
+   reference/select2
+   reference/routing
    reference/action_list
    reference/action_create_edit
    reference/action_show
@@ -52,27 +47,17 @@ Reference Guide
    reference/form_types
    reference/form_help_message
    reference/field_types
-   reference/batch_actions
-   reference/console
-   reference/troubleshooting
-
-Advanced Options
-----------------
-
-.. toctree::
-   :maxdepth: 1
-   :numbered:
-
-   reference/routing
-   reference/translation
    reference/conditional_validation
    reference/templates
+   reference/batch_actions
+   reference/translation
    reference/security
    reference/extensions
    reference/events
-   reference/advanced_configuration
-   reference/annotations
+   reference/advanced
+   reference/console
    reference/preview_mode
+   reference/troubleshooting
 
 Cookbook
 --------
@@ -81,19 +66,9 @@ Cookbook
    :maxdepth: 1
    :numbered:
 
-   cookbook/recipe_select2
-   cookbook/recipe_knp_menu
    cookbook/recipe_file_uploads
    cookbook/recipe_image_previews
    cookbook/recipe_row_templates
    cookbook/recipe_sortable_listing
    cookbook/recipe_dynamic_form_modification
    cookbook/recipe_custom_action
-   cookbook/recipe_customizing_a_mosaic_list
-   cookbook/recipe_overwrite_admin_configuration
-   cookbook/recipe_improve_performance_large_datasets
-   cookbook/recipe_virtual_field
-   cookbook/recipe_bootlint
-   cookbook/recipe_lock_protection
-   cookbook/recipe_sortable_sonata_type_model
-   cookbook/recipe_delete_field_group

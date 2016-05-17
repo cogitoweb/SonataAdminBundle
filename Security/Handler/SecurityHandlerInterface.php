@@ -13,17 +13,12 @@ namespace Sonata\AdminBundle\Security\Handler;
 
 use Sonata\AdminBundle\Admin\AdminInterface;
 
-/**
- * Interface SecurityHandlerInterface.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
- */
 interface SecurityHandlerInterface
 {
     /**
-     * @param AdminInterface $admin
-     * @param string|array   $attributes
-     * @param null           $object
+     * @param \Sonata\AdminBundle\Admin\AdminInterface $admin
+     * @param string|array                             $attributes
+     * @param null                                     $object
      *
      * @return bool
      */
@@ -32,30 +27,30 @@ interface SecurityHandlerInterface
     /**
      * Get a sprintf template to get the role.
      *
-     * @param AdminInterface $admin
+     * @param \Sonata\AdminBundle\Admin\AdminInterface $admin
      *
      * @return string
      */
     public function getBaseRole(AdminInterface $admin);
 
     /**
-     * @param AdminInterface $admin
+     * @param \Sonata\AdminBundle\Admin\AdminInterface $admin
      */
     public function buildSecurityInformation(AdminInterface $admin);
 
     /**
      * Create object security, fe. make the current user owner of the object.
      *
-     * @param AdminInterface $admin
-     * @param mixed          $object
+     * @param \Sonata\AdminBundle\Admin\AdminInterface $admin
+     * @param mixed                                    $object
      */
     public function createObjectSecurity(AdminInterface $admin, $object);
 
     /**
      * Remove object security.
      *
-     * @param AdminInterface $admin
-     * @param mixed          $object
+     * @param \Sonata\AdminBundle\Admin\AdminInterface $admin
+     * @param mixed                                    $object
      */
     public function deleteObjectSecurity(AdminInterface $admin, $object);
 }

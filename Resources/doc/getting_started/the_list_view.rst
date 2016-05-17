@@ -24,7 +24,7 @@ list page to the list view:
     namespace AppBundle\Admin;
 
     // ...
-    class BlogPostAdmin extends AbstractAdmin
+    class BlogPostAdmin extends Admin
     {
         // ...
 
@@ -64,7 +64,7 @@ instead of ``ListMapper#add()``:
     namespace AppBundle\Admin;
 
     // ...
-    class BlogPostAdmin extends AbstractAdmin
+    class BlogPostAdmin extends Admin
     {
         // ...
 
@@ -100,7 +100,7 @@ category.
     namespace AppBundle\Admin;
 
     // ...
-    class BlogPostAdmin extends AbstractAdmin
+    class BlogPostAdmin extends Admin
     {
         // ...
 
@@ -117,14 +117,14 @@ category.
 Adding Filter/Search Options
 ----------------------------
 
-Assume you had a very successful blog site containing many blog posts. After a
+Assume you had a very succesfull blog site containing many blog posts. After a
 while, finding the blog post you wanted to edit would be like finding a needle
 in a haystack. As with all user experience problems, Sonata provides a solution
 for it!
 
 It does this by allowing you to configure datagrid filters in the
 ``Admin#configureDatagridFilters()`` method. For instance, to allow the admin
-to search blog posts by title (and also order them by alphabet in the list), you
+to search blog posts by title (and also order them by alfabet in the list), you
 would do something like:
 
 .. code-block:: php
@@ -135,7 +135,7 @@ would do something like:
     use Sonata\AdminBundle\Datagrid\DatagridMapper;
 
     // ...
-    class BlogPostAdmin extends AbstractAdmin
+    class BlogPostAdmin extends Admin
     {
         protected function configureDatagridFilters(DatagridMapper $datagridMapper)
         {
@@ -179,7 +179,7 @@ the search field to use the ``name`` property of the Category:
     use Sonata\AdminBundle\Datagrid\DatagridMapper;
 
     // ...
-    class BlogPostAdmin extends AbstractAdmin
+    class BlogPostAdmin extends Admin
     {
         protected function configureDatagridFilters(DatagridMapper $datagridMapper)
         {

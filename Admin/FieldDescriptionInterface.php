@@ -11,11 +11,6 @@
 
 namespace Sonata\AdminBundle\Admin;
 
-/**
- * Interface FieldDescriptionInterface.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
- */
 interface FieldDescriptionInterface
 {
     /**
@@ -114,14 +109,14 @@ interface FieldDescriptionInterface
     /**
      * set the parent Admin (only used in nested admin).
      *
-     * @param AdminInterface $parent
+     * @param \Sonata\AdminBundle\Admin\AdminInterface $parent
      */
     public function setParent(AdminInterface $parent);
 
     /**
      * return the parent Admin (only used in nested admin).
      *
-     * @return AdminInterface
+     * @return \Sonata\AdminBundle\Admin\AdminInterface
      */
     public function getParent();
 
@@ -177,14 +172,14 @@ interface FieldDescriptionInterface
     /**
      * set the association admin instance (only used if the field is linked to an Admin).
      *
-     * @param AdminInterface $associationAdmin the associated admin
+     * @param \Sonata\AdminBundle\Admin\AdminInterface $associationAdmin the associated admin
      */
     public function setAssociationAdmin(AdminInterface $associationAdmin);
 
     /**
      * return the associated Admin instance (only used if the field is linked to an Admin).
      *
-     * @return AdminInterface
+     * @return \Sonata\AdminBundle\Admin\AdminInterface
      */
     public function getAssociationAdmin();
 
@@ -207,12 +202,12 @@ interface FieldDescriptionInterface
     /**
      * set the admin class linked to this FieldDescription.
      *
-     * @param AdminInterface $admin
+     * @param \Sonata\AdminBundle\Admin\AdminInterface $admin
      */
     public function setAdmin(AdminInterface $admin);
 
     /**
-     * @return AdminInterface the admin class linked to this FieldDescription
+     * @return \Sonata\AdminBundle\Admin\AdminInterface the admin class linked to this FieldDescription
      */
     public function getAdmin();
 

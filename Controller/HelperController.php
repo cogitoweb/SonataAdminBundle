@@ -15,21 +15,15 @@ use Sonata\AdminBundle\Admin\AdminHelper;
 use Sonata\AdminBundle\Admin\AdminInterface;
 use Sonata\AdminBundle\Admin\Pool;
 use Sonata\AdminBundle\Filter\FilterInterface;
-use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyPath;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Component\Validator\ValidatorInterface as LegacyValidatorInterface;
+use Symfony\Component\Validator\ValidatorInterface;
 
-/**
- * Class HelperController.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
- */
 class HelperController
 {
     /**
@@ -38,51 +32,47 @@ class HelperController
     protected $twig;
 
     /**
-     * @var AdminHelper
+     * @var \Sonata\AdminBundle\Admin\AdminHelper
      */
     protected $helper;
 
     /**
-     * @var Pool
+     * @var \Sonata\AdminBundle\Admin\Pool
      */
     protected $pool;
 
     /**
-     * @var ValidatorInterface|ValidatorInterface
+     * @var \Symfony\Component\Validator\ValidatorInterface
      */
     protected $validator;
 
     /**
-     * @param \Twig_Environment  $twig
-     * @param Pool               $pool
-     * @param AdminHelper        $helper
-     * @param ValidatorInterface $validator
+     * @param \Twig_Environment                               $twig
+     * @param \Sonata\AdminBundle\Admin\Pool                  $pool
+     * @param \Sonata\AdminBundle\Admin\AdminHelper           $helper
+     * @param \Symfony\Component\Validator\ValidatorInterface $validator
      */
-    public function __construct(\Twig_Environment $twig, Pool $pool, AdminHelper $helper, $validator)
+    public function __construct(\Twig_Environment $twig, Pool $pool, AdminHelper $helper, ValidatorInterface $validator)
     {
-        if (!($validator instanceof ValidatorInterface) && !($validator instanceof LegacyValidatorInterface)) {
-            throw new \InvalidArgumentException('Argument 4 is an instance of '.get_class($validator).', expecting an instance of \Symfony\Component\Validator\Validator\ValidatorInterface or \Symfony\Component\Validator\ValidatorInterface');
-        }
-
-        $this->twig = $twig;
-        $this->pool = $pool;
-        $this->helper = $helper;
+        $this->twig      = $twig;
+        $this->pool      = $pool;
+        $this->helper    = $helper;
         $this->validator = $validator;
     }
 
     /**
-     * @throws NotFoundHttpException
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      *
-     * @param Request $request
+     * @param \Symfony\Component\HttpFoundation\Request $request
      *
-     * @return Response
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function appendFormFieldElementAction(Request $request)
     {
-        $code = $request->get('code');
+        $code      = $request->get('code');
         $elementId = $request->get('elementId');
-        $objectId = $request->get('objectId');
-        $uniqid = $request->get('uniqid');
+        $objectId  = $request->get('objectId');
+        $uniqid    = $request->get('uniqid');
 
         $admin = $this->pool->getInstance($code);
         $admin->setRequest($request);
@@ -102,7 +92,7 @@ class HelperController
 
         $admin->setSubject($subject);
 
-        list(, $form) = $this->helper->appendFormFieldElement($admin, $subject, $elementId);
+        list($fieldDescription, $form) = $this->helper->appendFormFieldElement($admin, $subject, $elementId);
 
         /* @var $form \Symfony\Component\Form\Form */
         $view = $this->helper->getChildFormView($form->createView(), $elementId);
@@ -118,18 +108,18 @@ class HelperController
     }
 
     /**
-     * @throws NotFoundHttpException
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      *
-     * @param Request $request
+     * @param \Symfony\Component\HttpFoundation\Request $request
      *
-     * @return Response
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function retrieveFormFieldElementAction(Request $request)
     {
-        $code = $request->get('code');
+        $code      = $request->get('code');
         $elementId = $request->get('elementId');
-        $objectId = $request->get('objectId');
-        $uniqid = $request->get('uniqid');
+        $objectId  = $request->get('objectId');
+        $uniqid    = $request->get('uniqid');
 
         $admin = $this->pool->getInstance($code);
         $admin->setRequest($request);
@@ -152,7 +142,7 @@ class HelperController
         $formBuilder = $admin->getFormBuilder($subject);
 
         $form = $formBuilder->getForm();
-        $form->handleRequest($request);
+        $form->submit($request);
 
         $view = $this->helper->getChildFormView($form->createView(), $elementId);
 
@@ -166,17 +156,17 @@ class HelperController
     }
 
     /**
-     * @throws NotFoundHttpException|\RuntimeException
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException|\RuntimeException
      *
-     * @param Request $request
+     * @param \Symfony\Component\HttpFoundation\Request $request
      *
-     * @return Response
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function getShortObjectDescriptionAction(Request $request)
     {
-        $code = $request->get('code');
-        $objectId = $request->get('objectId');
-        $uniqid = $request->get('uniqid');
+        $code           = $request->get('code');
+        $objectId       = $request->get('objectId');
+        $uniqid         = $request->get('uniqid');
         $linkParameters = $request->get('linkParameters', array());
 
         $admin = $this->pool->getInstance($code);
@@ -203,14 +193,14 @@ class HelperController
 
         if ('json' == $request->get('_format')) {
             return new JsonResponse(array('result' => array(
-                'id' => $admin->id($object),
+                'id'    => $admin->id($object),
                 'label' => $admin->toString($object),
             )));
         } elseif ('html' == $request->get('_format')) {
             return new Response($this->twig->render($admin->getTemplate('short_object_description'), array(
-                'admin' => $admin,
-                'description' => $admin->toString($object),
-                'object' => $object,
+                'admin'           => $admin,
+                'description'     => $admin->toString($object),
+                'object'          => $object,
                 'link_parameters' => $linkParameters,
             )));
         } else {
@@ -219,17 +209,17 @@ class HelperController
     }
 
     /**
-     * @param Request $request
+     * @param \Symfony\Component\HttpFoundation\Request $request
      *
-     * @return Response
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function setObjectFieldValueAction(Request $request)
     {
-        $field = $request->get('field');
-        $code = $request->get('code');
+        $field    = $request->get('field');
+        $code     = $request->get('code');
         $objectId = $request->get('objectId');
-        $value = $request->get('value');
-        $context = $request->get('context');
+        $value    = $request->get('value');
+        $context  = $request->get('context');
 
         $admin = $this->pool->getInstance($code);
         $admin->setRequest($request);
@@ -268,25 +258,21 @@ class HelperController
             return new JsonResponse(array('status' => 'KO', 'message' => 'The field cannot be edit, editable option must be set to true'));
         }
 
-        $propertyPath = new PropertyPath($field);
+        $propertyAccessor = PropertyAccess::createPropertyAccessor();
+        $propertyPath     = new PropertyPath($field);
 
         // If property path has more than 1 element, take the last object in order to validate it
         if ($propertyPath->getLength() > 1) {
-            $object = $this->pool->getPropertyAccessor()->getValue($object, $propertyPath->getParent());
+            $object = $propertyAccessor->getValue($object, $propertyPath->getParent());
 
-            $elements = $propertyPath->getElements();
-            $field = end($elements);
+            $elements     = $propertyPath->getElements();
+            $field        = end($elements);
             $propertyPath = new PropertyPath($field);
         }
 
-        // Handle date type has setter expect a DateTime object
-        if ('' !== $value && $fieldDescription->getType() == 'date') {
-            $value = new \DateTime($value);
-        }
+        $propertyAccessor->setValue($object, $propertyPath, '' !== $value ? $value : null);
 
-        $this->pool->getPropertyAccessor()->setValue($object, $propertyPath, '' !== $value ? $value : null);
-
-        $violations = $this->validator->validate($object);
+        $violations = $this->validator->validateProperty($object, $field);
 
         if (count($violations)) {
             $messages = array();
@@ -303,6 +289,7 @@ class HelperController
         // render the widget
         // todo : fix this, the twig environment variable is not set inside the extension ...
         $extension = $this->twig->getExtension('sonata_admin');
+        $extension->initRuntime($this->twig);
 
         $content = $extension->renderListElement($this->twig, $rootObject, $fieldDescription);
 
@@ -321,51 +308,29 @@ class HelperController
      */
     public function retrieveAutocompleteItemsAction(Request $request)
     {
-        $admin = $this->pool->getInstance($request->get('admin_code'));
+        $admin = $this->pool->getInstance($request->get('code'));
         $admin->setRequest($request);
-        $context = $request->get('_context', '');
 
-        if ($context === 'filter' && false === $admin->isGranted('LIST')) {
-            throw new AccessDeniedException();
-        }
-
-        if ($context !== 'filter'
-            && false === $admin->isGranted('CREATE')
-            && false === $admin->isGranted('EDIT')
-        ) {
+        if (false === $admin->isGranted('CREATE') && false === $admin->isGranted('EDIT')) {
             throw new AccessDeniedException();
         }
 
         // subject will be empty to avoid unnecessary database requests and keep autocomplete function fast
         $admin->setSubject($admin->getNewInstance());
 
-        if ($context === 'filter') {
-            // filter
-            $fieldDescription = $this->retrieveFilterFieldDescription($admin, $request->get('field'));
-            $filterAutocomplete = $admin->getDatagrid()->getFilter($fieldDescription->getName());
+        $fieldDescription = $this->retrieveFieldDescription($admin, $request->get('field'));
+        $formAutocomplete = $admin->getForm()->get($fieldDescription->getName());
 
-            $property = $filterAutocomplete->getFieldOption('property');
-            $callback = $filterAutocomplete->getFieldOption('callback');
-            $minimumInputLength = $filterAutocomplete->getFieldOption('minimum_input_length', 3);
-            $itemsPerPage = $filterAutocomplete->getFieldOption('items_per_page', 10);
-            $reqParamPageNumber = $filterAutocomplete->getFieldOption('req_param_name_page_number', '_page');
-            $toStringCallback = $filterAutocomplete->getFieldOption('to_string_callback');
-        } else {
-            // create/edit form
-            $fieldDescription = $this->retrieveFormFieldDescription($admin, $request->get('field'));
-            $formAutocomplete = $admin->getForm()->get($fieldDescription->getName());
-
-            if ($formAutocomplete->getConfig()->getAttribute('disabled')) {
-                throw new AccessDeniedException('Autocomplete list can`t be retrieved because the form element is disabled or read_only.');
-            }
-
-            $property = $formAutocomplete->getConfig()->getAttribute('property');
-            $callback = $formAutocomplete->getConfig()->getAttribute('callback');
-            $minimumInputLength = $formAutocomplete->getConfig()->getAttribute('minimum_input_length');
-            $itemsPerPage = $formAutocomplete->getConfig()->getAttribute('items_per_page');
-            $reqParamPageNumber = $formAutocomplete->getConfig()->getAttribute('req_param_name_page_number');
-            $toStringCallback = $formAutocomplete->getConfig()->getAttribute('to_string_callback');
+        if ($formAutocomplete->getConfig()->getAttribute('disabled')) {
+            throw new AccessDeniedException('Autocomplete list can`t be retrieved because the form element is disabled or read_only.');
         }
+
+        $property           = $formAutocomplete->getConfig()->getAttribute('property');
+        $callback           = $formAutocomplete->getConfig()->getAttribute('callback');
+        $minimumInputLength = $formAutocomplete->getConfig()->getAttribute('minimum_input_length');
+        $itemsPerPage       = $formAutocomplete->getConfig()->getAttribute('items_per_page');
+        $reqParamPageNumber = $formAutocomplete->getConfig()->getAttribute('req_param_name_page_number');
+        $toStringCallback   = $formAutocomplete->getConfig()->getAttribute('to_string_callback');
 
         $searchText = $request->get('q');
 
@@ -433,29 +398,29 @@ class HelperController
             }
 
             $items[] = array(
-                'id' => $admin->id($entity),
+                'id'    => $admin->id($entity),
                 'label' => $label,
             );
         }
 
         return new JsonResponse(array(
             'status' => 'OK',
-            'more' => !$pager->isLastPage(),
-            'items' => $items,
+            'more'   => !$pager->isLastPage(),
+            'items'  => $items,
         ));
     }
 
     /**
-     * Retrieve the form field description given by field name.
+     * Retrieve the field description given by field name.
      *
      * @param AdminInterface $admin
      * @param string         $field
      *
-     * @return FormInterface
+     * @return \Symfony\Component\Form\FormInterface
      *
      * @throws \RuntimeException
      */
-    private function retrieveFormFieldDescription(AdminInterface $admin, $field)
+    private function retrieveFieldDescription(AdminInterface $admin, $field)
     {
         $admin->getFormFieldDescriptions();
 
@@ -465,31 +430,8 @@ class HelperController
             throw new \RuntimeException(sprintf('The field "%s" does not exist.', $field));
         }
 
-        if (null === $fieldDescription->getTargetEntity()) {
-            throw new \RuntimeException(sprintf('No associated entity with field "%s".', $field));
-        }
-
-        return $fieldDescription;
-    }
-
-    /**
-     * Retrieve the filter field description given by field name.
-     *
-     * @param AdminInterface $admin
-     * @param string         $field
-     *
-     * @return FormInterface
-     *
-     * @throws \RuntimeException
-     */
-    private function retrieveFilterFieldDescription(AdminInterface $admin, $field)
-    {
-        $admin->getFilterFieldDescriptions();
-
-        $fieldDescription = $admin->getFilterFieldDescription($field);
-
-        if (!$fieldDescription) {
-            throw new \RuntimeException(sprintf('The field "%s" does not exist.', $field));
+        if ($fieldDescription->getType() !== 'sonata_type_model_autocomplete') {
+            throw new \RuntimeException(sprintf('Unsupported form type "%s" for field "%s".', $fieldDescription->getType(), $field));
         }
 
         if (null === $fieldDescription->getTargetEntity()) {

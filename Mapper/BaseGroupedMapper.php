@@ -12,27 +12,18 @@
 namespace Sonata\AdminBundle\Mapper;
 
 /**
- * Class BaseGroupedMapper
  * This class is used to simulate the Form API.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
  */
 abstract class BaseGroupedMapper extends BaseMapper
 {
-    /**
-     * @var string
-     */
     protected $currentGroup;
-
-    /**
-     * @var string
-     */
     protected $currentTab;
 
-    /**
-     * @var bool
-     */
-    protected $apply;
+    abstract protected function getGroups();
+    abstract protected function getTabs();
+
+    abstract protected function setGroups(array $groups);
+    abstract protected function setTabs(array $tabs);
 
     /**
      * Add new group or tab (if parameter "tab=true" is available in options).
@@ -67,12 +58,11 @@ abstract class BaseGroupedMapper extends BaseMapper
          *
          */
         $defaultOptions = array(
-            'collapsed' => false,
-            'class' => false,
-            'description' => false,
+            'collapsed'          => false,
+            'class'              => false,
+            'description'        => false,
             'translation_domain' => null,
-            'name' => $name,
-            'box_class' => 'box box-primary',
+            'name'               => $name,
         );
 
         $code = $name;
@@ -96,8 +86,8 @@ abstract class BaseGroupedMapper extends BaseMapper
             }
 
             $tabs[$code] = array_merge($defaultOptions, array(
-                'auto_created' => false,
-                'groups' => array(),
+                'auto_created'       => false,
+                'groups'             => array(),
             ), $tabs[$code], $options);
 
             $this->currentTab = $code;
@@ -109,8 +99,8 @@ abstract class BaseGroupedMapper extends BaseMapper
             if (!$this->currentTab) {
                 // no tab define
                 $this->with('default', array(
-                    'tab' => true,
-                    'auto_created' => true,
+                    'tab'                => true,
+                    'auto_created'       => true,
                     'translation_domain' => isset($options['translation_domain']) ? $options['translation_domain'] : null,
                 )); // add new tab automatically
             }
@@ -139,56 +129,6 @@ abstract class BaseGroupedMapper extends BaseMapper
         }
 
         $this->setTabs($tabs);
-
-        return $this;
-    }
-
-    /**
-     * Only nested add if the condition match true.
-     *
-     * @param bool $bool
-     *
-     * @return $this
-     *
-     * @throws \RuntimeException
-     */
-    public function ifTrue($bool)
-    {
-        if ($this->apply !== null) {
-            throw new \RuntimeException('Cannot nest ifTrue or ifFalse call');
-        }
-
-        $this->apply = ($bool === true);
-
-        return $this;
-    }
-
-    /**
-     * Only nested add if the condition match false.
-     *
-     * @param bool $bool
-     *
-     * @return $this
-     *
-     * @throws \RuntimeException
-     */
-    public function ifFalse($bool)
-    {
-        if ($this->apply !== null) {
-            throw new \RuntimeException('Cannot nest ifTrue or ifFalse call');
-        }
-
-        $this->apply = ($bool === false);
-
-        return $this;
-    }
-
-    /**
-     * @return $this
-     */
-    public function ifEnd()
-    {
-        $this->apply = null;
 
         return $this;
     }
@@ -225,36 +165,6 @@ abstract class BaseGroupedMapper extends BaseMapper
 
         return $this;
     }
-
-    /**
-     * Returns a boolean indicating if there is an open tab at the moment.
-     *
-     * @return bool
-     */
-    public function hasOpenTab()
-    {
-        return null !== $this->currentTab;
-    }
-
-    /**
-     * @return array
-     */
-    abstract protected function getGroups();
-
-    /**
-     * @return array
-     */
-    abstract protected function getTabs();
-
-    /**
-     * @param array $groups
-     */
-    abstract protected function setGroups(array $groups);
-
-    /**
-     * @param array $tabs
-     */
-    abstract protected function setTabs(array $tabs);
 
     /**
      * Add the field name to the current group.

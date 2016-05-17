@@ -8,21 +8,19 @@ alter newly created objects and other admin features.
 
 .. code-block:: php
 
-    use Sonata\AdminBundle\Admin\AbstractAdminExtension;
+    use Sonata\AdminBundle\Admin\AdminExtension;
     use Sonata\AdminBundle\Form\FormMapper;
 
-    class PublishStatusAdminExtension extends AbstractAdminExtension
+    class PublishStatusAdminExtension extends AdminExtension
     {
         public function configureFormFields(FormMapper $formMapper)
         {
-            $formMapper
-                ->add('status', 'choice', array(
-                    'choices' => array(
-                        'draft' => 'Draft',
-                        'published' => 'Published',
-                    ),
-                ))
-            ;
+            $formMapper->add('status', 'choice', array(
+                'choices' => array(
+                    'draft' => 'Draft',
+                    'published' => 'Published',
+                ),
+            ));
         }
     }
 
@@ -41,14 +39,14 @@ Set the *global* attribute to *true* and the extension will be added to all admi
     .. code-block:: yaml
 
         services:
-            app.publish.extension:
-                class: AppBundle\Admin\Extension\PublishStatusAdminExtension
+            acme.demo.publish.extension:
+                class: Acme\Demo\BlogBundle\Admin\Extension\PublishStatusAdminExtension
                 tags:
-                    - { name: sonata.admin.extension, target: app.admin.article }
-                    - { name: sonata.admin.extension, target: app.admin.blog }
+                    - { name: sonata.admin.extension, target: acme.demo.admin.article }
+                    - { name: sonata.admin.extension, target: acme.demo.admin.blog }
 
-            app.order.extension:
-                class: AppBundle\Admin\Extension\OrderAdminExtension
+            acme.demo.order.extension:
+                class: Acme\Demo\BlogBundle\Admin\Extension\OrderAdminExtension
                 tags:
                     - { name: sonata.admin.extension, global: true }
 
@@ -59,14 +57,13 @@ The second option is to add it to your config.yml file.
     .. code-block:: yaml
 
         # app/config/config.yml
+            sonata_admin:
+                extensions:
+                    acme.demo.publish.extension:
+                        admins:
+                            - acme.demo.admin.article
 
-        sonata_admin:
-            extensions:
-                app.publish.extension:
-                    admins:
-                        - app.admin.article
-
-Using the ``config.yml`` file has some advantages, it allows you to keep your configuration centralized and it provides some
+Using the config.yml file has some advantages, it allows you to keep your configuration centralized and it provides some
 extra options you can use to wire your extensions in a more dynamic way. This means you can change the behaviour of all
 admins that manage a class of a specific type.
 
@@ -89,30 +86,23 @@ instanceof:
     specify one or more classes. If the managed class of an admin extends one of the specified classes or is an instance
     of that class the extension will be added to that admin.
 
-uses:
-    Requires PHP >= 5.4.0. Specify one or more traits. If the managed class of an admin uses one of the specified traits the extension will be
-    added to that admin.
-
 
 .. configuration-block::
 
     .. code-block:: yaml
 
         # app/config/config.yml
-
-        sonata_admin:
-            extensions:
-                app.publish.extension:
-                    admins:
-                        - app.admin.article
-                    implements:
-                        - AppBundle\Publish\PublishStatusInterface
-                    excludes:
-                        - app.admin.blog
-                        - app.admin.news
-                    extends:
-                        - AppBundle\Document\Blog
-                    instanceof:
-                        -  AppBundle\Document\Page
-                    uses:
-                        -  AppBundle\Trait\Timestampable
+            sonata_admin:
+                extensions:
+                    acme.demo.publish.extension:
+                        admins:
+                            - acme.demo.admin.article
+                        implements:
+                            - Acme\Demo\Publish\PublishStatusInterface
+                        excludes:
+                            - acme.demo.admin.blog
+                            - acme.demo.admin.news
+                        extends:
+                            - Acme\Demo\Document\Blog
+                        instanceof:
+                            -  Acme\Demo\Document\Page

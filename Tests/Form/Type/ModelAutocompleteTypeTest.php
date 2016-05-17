@@ -23,16 +23,12 @@ class ModelAutocompleteTypeTest extends TypeTestCase
         $modelManager = $this->getMock('Sonata\AdminBundle\Model\ModelManagerInterface');
         $optionResolver = new OptionsResolver();
 
-        if (!method_exists('Symfony\Component\Form\AbstractType', 'getBlockPrefix')) {
-            $type->setDefaultOptions($optionResolver);
-        } else {
-            $type->configureOptions($optionResolver);
-        }
+        $type->setDefaultOptions($optionResolver);
 
         $options = $optionResolver->resolve(array('model_manager' => $modelManager, 'class' => 'Foo', 'property' => 'bar'));
 
         $this->assertSame(array(), $options['attr']);
-        $this->assertFalse($options['compound']);
+        $this->assertTrue($options['compound']);
         $this->assertInstanceOf('Sonata\AdminBundle\Model\ModelManagerInterface', $options['model_manager']);
         $this->assertSame($modelManager, $options['model_manager']);
         $this->assertSame('Foo', $options['class']);
@@ -42,11 +38,6 @@ class ModelAutocompleteTypeTest extends TypeTestCase
         $this->assertSame('', $options['placeholder']);
         $this->assertSame(3, $options['minimum_input_length']);
         $this->assertSame(10, $options['items_per_page']);
-        $this->assertSame(100, $options['quiet_millis']);
-        $this->assertSame(false, $options['cache']);
-        $this->assertSame('', $options['width']);
-        $this->assertFalse($options['dropdown_auto_width']);
-        $this->assertFalse($options['read_only']);
 
         $this->assertSame('', $options['url']);
         $this->assertSame(array('name' => 'sonata_admin_retrieve_autocomplete_items', 'parameters' => array()), $options['route']);
@@ -54,12 +45,6 @@ class ModelAutocompleteTypeTest extends TypeTestCase
         $this->assertSame('q', $options['req_param_name_search']);
         $this->assertSame('_page', $options['req_param_name_page_number']);
         $this->assertSame('_per_page', $options['req_param_name_items_per_page']);
-        $this->assertSame('', $options['container_css_class']);
-        $this->assertSame('', $options['dropdown_css_class']);
-        $this->assertSame('', $options['dropdown_item_css_class']);
-
-        $this->assertSame('SonataAdminBundle:Form/Type:sonata_type_model_autocomplete.html.twig', $options['template']);
-
-        $this->assertSame('', $options['context']);
+        $this->assertSame('sonata-autocomplete-dropdown', $options['dropdown_css_class']);
     }
 }

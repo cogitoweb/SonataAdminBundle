@@ -15,11 +15,6 @@ use Sonata\AdminBundle\Admin\AdminInterface;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Resource\FileResource;
 
-/**
- * Class RoutesCache.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
- */
 class RoutesCache
 {
     /**
@@ -39,7 +34,7 @@ class RoutesCache
     public function __construct($cacheFolder, $debug)
     {
         $this->cacheFolder = $cacheFolder;
-        $this->debug = $debug;
+        $this->debug       = $debug;
     }
 
     /**
@@ -62,7 +57,7 @@ class RoutesCache
             $resources[] = new FileResource($reflection->getFileName());
 
             if (!$admin->getRoutes()) {
-                throw new \RuntimeException('Invalid data type, AdminInterface::getRoutes must return a RouteCollection');
+                throw new \RuntimeException('Invalid data type, Admin::getRoutes must return a RouteCollection');
             }
 
             foreach ($admin->getRoutes()->getElements() as $code => $route) {

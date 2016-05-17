@@ -15,20 +15,12 @@ use Sonata\AdminBundle\Admin\AdminInterface;
 use Sonata\AdminBundle\Builder\RouteBuilderInterface;
 use Sonata\AdminBundle\Model\AuditManagerInterface;
 
-/**
- * Class PathInfoBuilder.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
- */
 class PathInfoBuilder implements RouteBuilderInterface
 {
-    /**
-     * @var AuditManagerInterface
-     */
     protected $manager;
 
     /**
-     * @param AuditManagerInterface $manager
+     * @param \Sonata\AdminBundle\Model\AuditManagerInterface $manager
      */
     public function __construct(AuditManagerInterface $manager)
     {
@@ -36,8 +28,8 @@ class PathInfoBuilder implements RouteBuilderInterface
     }
 
     /**
-     * @param AdminInterface  $admin
-     * @param RouteCollection $collection
+     * @param \Sonata\AdminBundle\Admin\AdminInterface  $admin
+     * @param \Sonata\AdminBundle\Route\RouteCollection $collection
      */
     public function build(AdminInterface $admin, RouteCollection $collection)
     {

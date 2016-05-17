@@ -14,31 +14,20 @@ namespace Sonata\AdminBundle\Form\DataTransformer;
 use Sonata\AdminBundle\Model\ModelManagerInterface;
 use Symfony\Component\Form\DataTransformerInterface;
 
-/**
- * Class ArrayToModelTransformer.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
- */
 class ArrayToModelTransformer implements DataTransformerInterface
 {
-    /**
-     * @var ModelManagerInterface
-     */
     protected $modelManager;
 
-    /**
-     * @var string
-     */
     protected $className;
 
     /**
-     * @param ModelManagerInterface $modelManager
-     * @param string                $className
+     * @param \Sonata\AdminBundle\Model\ModelManagerInterface $modelManager
+     * @param string                                          $className
      */
     public function __construct(ModelManagerInterface $modelManager, $className)
     {
         $this->modelManager = $modelManager;
-        $this->className = $className;
+        $this->className    = $className;
     }
 
     /**

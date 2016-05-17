@@ -35,11 +35,11 @@ div.connection .alert {
 
 div.connection form {
     padding-top: 15px;
-    margin-bottom: 0;
+    margin-bottom: 0px;
 }
 
 div.connection form .form-actions {
-    margin-bottom: 0;
+    margin-bottom: 0px;
 }
 
 div.connection .form-actions {
@@ -52,7 +52,7 @@ div.connection div input.big {
 }
 
 .sonata-bc.sonata-ba-no-side-menu div.container-fluid > div.content {
-    margin-left: 0;
+    margin-left: 0px;
 }
 
 
@@ -103,11 +103,6 @@ div.sonata-actions {
     float: right
 }
 
-.sonata-ba-action.btn:not(:hover) {
-    background: none;
-    color: inherit;
-}
-
 .sonata-ba-list td.sonata-ba-list-field a.sonata-link-identifier {
     font-weight: bold;
 }
@@ -152,9 +147,9 @@ th.sonata-ba-list-field-header-order-asc a {
     margin-right: 10px;
 }
 
-th.sonata-ba-list-field-header-order-asc a:hover:after,
-th.sonata-ba-list-field-header-order-asc.sonata-ba-list-field-order-active a:after,
-th.sonata-ba-list-field-header-order-desc.sonata-ba-list-field-order-active a:hover:after {
+th.sonata-ba-list-field-header-order-asc a:hover:before,
+th.sonata-ba-list-field-header-order-asc.sonata-ba-list-field-order-active a:before,
+th.sonata-ba-list-field-header-order-desc.sonata-ba-list-field-order-active a:hover:before {
     content: "";
     display: block;
     border-top: 4px solid black;
@@ -167,9 +162,9 @@ th.sonata-ba-list-field-header-order-desc.sonata-ba-list-field-order-active a:ho
     margin-top: -1px;
 }
 
-th.sonata-ba-list-field-header-order-desc a:hover:after,
-th.sonata-ba-list-field-header-order-desc.sonata-ba-list-field-order-active a:after,
-th.sonata-ba-list-field-header-order-asc.sonata-ba-list-field-order-active a:hover:after {
+th.sonata-ba-list-field-header-order-desc a:hover:before,
+th.sonata-ba-list-field-header-order-desc.sonata-ba-list-field-order-active a:before,
+th.sonata-ba-list-field-header-order-asc.sonata-ba-list-field-order-active a:hover:before {
     content: "";
     display: block;
     border-bottom: 4px solid black;
@@ -189,7 +184,7 @@ em.sonata-ba-field-help {
 }
 
 fieldset legend {
-    padding-left: 0;
+    padding-left: 0px;
 }
 
 select.sonata-medium, textarea.sonata-medium, input.sonata-medium {
@@ -200,13 +195,16 @@ textarea.sonata-medium {
     height: 125px;
 }
 
-input[type="file"] {
-    height: 34px;
+div.sonata-medium-date {
+    overflow: hidden;
 }
 
-.sonata-ba-field-standard-natural .field-actions {
-    display: block;
-    margin-top: 5px;
+div.sonata-medium-date select {
+    width: 85px;
+}
+
+div.sonata-medium-date div {
+    float: left;
 }
 
 .sonata-ba-field-inline-table select.sonata-medium,
@@ -265,12 +263,20 @@ input[type="file"] {
     vertical-align: middle;
 }
 
+.sonata-collection-delete {
+    float: left;
+}
+
 .sonata-collection-add, .sonata-collection-delete {
     box-shadow: none;
 }
 
 .no-js .sonata-collection-add, .no-js .sonata-collection-delete {
     display: none;
+}
+
+.form-horizontal .sonata-collection-row-without-label {
+    margin-left: 0;
 }
 
 ul.inputs-list {
@@ -308,7 +314,7 @@ legend.sonata-ba-fieldset-collapsed-description + .sonata-ba-collapsed-fields {
 }
 
 .pagination {
-    margin: 0;
+    margin: 0px;
 }
 
 .field-short-description {
@@ -344,56 +350,4 @@ legend.sonata-ba-fieldset-collapsed-description + .sonata-ba-collapsed-fields {
     padding: 4px 0;
     text-align: center;
     width: 100%;
-}
-
-body.fixed .content-header .navbar.stuck {
-    position:fixed;
-    top:50px;
-    width: 100%;
-    margin-left: -15px;
-    z-index: 5;
-    border-radius: 0;
-}
-
-.sonata-search-result-list > li {
-    word-wrap: break-word;
-}
-
-.form-actions.stuck {
-    position:fixed;
-    bottom:0;
-    width: 100%;
-    margin-left: -15px;
-    margin-bottom: 0;
-    z-index: 5;
-    border-radius: 0;
-}
-
-@media(max-width:768px) {
-    body.fixed .main-header {
-        position: relative;
-    }
-    body.fixed .content-wrapper,
-    body.fixed .right-side {
-        padding-top: 0;
-    }
-    body.fixed .content-header .navbar.stuck {
-        top: 0;
-        position: relative;
-        margin: 0;
-        width: 100%;
-    }
-    body.fixed .main-sidebar {
-        position: absolute;
-    }
-    /* disable slimScroll */
-    body.fixed .main-sidebar .slimScrollDiv,
-    body.fixed .main-sidebar .sidebar {
-        overflow: visible !important;
-        height: auto !important;
-    }
-    .navbar-custom-menu > .navbar-nav > li >.dropdown-menu {
-        width: auto !important;
-        min-width: 230px; /* width of the left sidebar */
-    }
 }

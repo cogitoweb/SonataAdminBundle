@@ -15,27 +15,22 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-/**
- * Class AddFilterTypeCompilerPass.
+/*
  *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
+ * @author Thomas Rabaix <thomas.rabaix@sonata-project.org>
  */
 class AddFilterTypeCompilerPass implements CompilerPassInterface
 {
     /**
-     * @param ContainerBuilder $container
+     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
      */
     public function process(ContainerBuilder $container)
     {
         $definition = $container->getDefinition('sonata.admin.builder.filter.factory');
-        $types = array();
+        $types      = array();
 
         foreach ($container->findTaggedServiceIds('sonata.admin.filter.type') as $id => $attributes) {
-            if (method_exists($definition, 'setShared')) { // Symfony 2.8+
-                $container->getDefinition($id)->setShared(false);
-            } else { // For Symfony <2.8 compatibility
-                $container->getDefinition($id)->setScope(ContainerInterface::SCOPE_PROTOTYPE);
-            }
+            $container->getDefinition($id)->setScope(ContainerInterface::SCOPE_PROTOTYPE);
 
             foreach ($attributes as $eachTag) {
                 $types[$eachTag['alias']] = $id;

@@ -17,18 +17,12 @@ use Symfony\Component\Form\Exception\InvalidArgumentException;
 use Symfony\Component\Form\Exception\RuntimeException;
 use Symfony\Component\Form\Extension\Core\ChoiceList\SimpleChoiceList;
 use Symfony\Component\PropertyAccess\PropertyAccess;
-use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\PropertyAccess\PropertyPath;
 
-/**
- * Class ModelChoiceList.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
- */
 class ModelChoiceList extends SimpleChoiceList
 {
     /**
-     * @var ModelManagerInterface
+     * @var \Sonata\AdminBundle\Model\ModelManagerInterface
      */
     private $modelManager;
 
@@ -78,15 +72,7 @@ class ModelChoiceList extends SimpleChoiceList
      */
     private $reflProperties = array();
 
-    /**
-     * @var PropertyPath
-     */
     private $propertyPath;
-
-    /**
-     * @var PropertyAccessorInterface
-     */
-    private $propertyAccessor;
 
     /**
      * @param ModelManagerInterface $modelManager
@@ -95,21 +81,85 @@ class ModelChoiceList extends SimpleChoiceList
      * @param null                  $query
      * @param array                 $choices
      */
-    public function __construct(ModelManagerInterface $modelManager, $class, $property = null, $query = null, $choices = array(), PropertyAccessorInterface $propertyAccessor = null)
+    public function __construct(ModelManagerInterface $modelManager, $class, $property = null, $query = null, $choices = array())
     {
-        $this->modelManager = $modelManager;
-        $this->class = $class;
-        $this->query = $query;
-        $this->identifier = $this->modelManager->getIdentifierFieldNames($this->class);
+        $this->modelManager   = $modelManager;
+        $this->class          = $class;
+        $this->query          = $query;
+        $this->identifier     = $this->modelManager->getIdentifierFieldNames($this->class);
 
         // The property option defines, which property (path) is used for
         // displaying entities as strings
         if ($property) {
             $this->propertyPath = new PropertyPath($property);
-            $this->propertyAccessor = $propertyAccessor ?: PropertyAccess::createPropertyAccessor();
         }
 
         parent::__construct($this->load($choices));
+    }
+
+    /**
+     * Initializes the choices and returns them.
+     *
+     * The choices are generated from the entities. If the entities have a
+     * composite identifier, the choices are indexed using ascending integers.
+     * Otherwise the identifiers are used as indices.
+     *
+     * If the entities were passed in the "choices" option, this method
+     * does not have any significant overhead. Otherwise, if a query builder
+     * was passed in the "query" option, this builder is now used to construct
+     * a query which is executed. In the last case, all entities for the
+     * underlying class are fetched from the repository.
+     *
+     * If the option "property" was passed, the property path in that option
+     * is used as option values. Otherwise this method tries to convert
+     * objects to strings using __toString().
+     *
+     * @param $choices
+     *
+     * @return array An array of choices
+     */
+    protected function load($choices)
+    {
+        if (is_array($choices)) {
+            $entities = $choices;
+        } elseif ($this->query) {
+            $entities = $this->modelManager->executeQuery($this->query);
+        } else {
+            $entities = $this->modelManager->findBy($this->class);
+        }
+
+        $choices = array();
+        $this->entities = array();
+
+        foreach ($entities as $key => $entity) {
+            if ($this->propertyPath) {
+                // If the property option was given, use it
+                $propertyAccessor = PropertyAccess::createPropertyAccessor();
+                $value = $propertyAccessor->getValue($entity, $this->propertyPath);
+            } else {
+                // Otherwise expect a __toString() method in the entity
+                try {
+                    $value = (string) $entity;
+                } catch (\Exception $e) {
+                    throw new RuntimeException(sprintf("Unable to convert the entity %s to String, entity must have a '__toString()' method defined", ClassUtils::getClass($entity)), 0, $e);
+                }
+            }
+
+            if (count($this->identifier) > 1) {
+                // When the identifier consists of multiple field, use
+                // naturally ordered keys to refer to the choices
+                $choices[$key] = $value;
+                $this->entities[$key] = $entity;
+            } else {
+                // When the identifier is a single field, index choices by
+                // entity ID for performance reasons
+                $id = current($this->getIdentifierValues($entity));
+                $choices[$id] = $value;
+                $this->entities[$id] = $entity;
+            }
+        }
+
+        return $choices;
     }
 
     /**
@@ -165,6 +215,24 @@ class ModelChoiceList extends SimpleChoiceList
     }
 
     /**
+     * Returns the \ReflectionProperty instance for a property of the
+     * underlying class.
+     *
+     * @param string $property The name of the property
+     *
+     * @return \ReflectionProperty The reflection instance
+     */
+    private function getReflProperty($property)
+    {
+        if (!isset($this->reflProperties[$property])) {
+            $this->reflProperties[$property] = new \ReflectionProperty($this->class, $property);
+            $this->reflProperties[$property]->setAccessible(true);
+        }
+
+        return $this->reflProperties[$property];
+    }
+
+    /**
      * Returns the values of the identifier fields of an entity.
      *
      * Doctrine must know about this entity, that is, the entity must already
@@ -188,7 +256,7 @@ class ModelChoiceList extends SimpleChoiceList
     }
 
     /**
-     * @return ModelManagerInterface
+     * @return \Sonata\AdminBundle\Model\ModelManagerInterface
      */
     public function getModelManager()
     {
@@ -201,92 +269,5 @@ class ModelChoiceList extends SimpleChoiceList
     public function getClass()
     {
         return $this->class;
-    }
-
-    /**
-     * Initializes the choices and returns them.
-     *
-     * The choices are generated from the entities. If the entities have a
-     * composite identifier, the choices are indexed using ascending integers.
-     * Otherwise the identifiers are used as indices.
-     *
-     * If the entities were passed in the "choices" option, this method
-     * does not have any significant overhead. Otherwise, if a query builder
-     * was passed in the "query" option, this builder is now used to construct
-     * a query which is executed. In the last case, all entities for the
-     * underlying class are fetched from the repository.
-     *
-     * If the option "property" was passed, the property path in that option
-     * is used as option values. Otherwise this method tries to convert
-     * objects to strings using __toString().
-     *
-     * @param $choices
-     *
-     * @return array An array of choices
-     */
-    protected function load($choices)
-    {
-        if (is_array($choices) && count($choices) > 0) {
-            $entities = $choices;
-        } elseif ($this->query) {
-            $entities = $this->modelManager->executeQuery($this->query);
-        } else {
-            $entities = $this->modelManager->findBy($this->class);
-        }
-
-        if (null === $entities) {
-            return array();
-        }
-
-        $choices = array();
-        $this->entities = array();
-
-        foreach ($entities as $key => $entity) {
-            if ($this->propertyPath) {
-                // If the property option was given, use it
-                $value = $this->propertyAccessor->getValue($entity, $this->propertyPath);
-            } else {
-                // Otherwise expect a __toString() method in the entity
-                try {
-                    $value = (string) $entity;
-                } catch (\Exception $e) {
-                    throw new RuntimeException(sprintf('Unable to convert the entity "%s" to string, provide '
-                        .'"property" option or implement "__toString()" method in your entity.', ClassUtils::getClass($entity)), 0, $e);
-                }
-            }
-
-            if (count($this->identifier) > 1) {
-                // When the identifier consists of multiple field, use
-                // naturally ordered keys to refer to the choices
-                $choices[$key] = $value;
-                $this->entities[$key] = $entity;
-            } else {
-                // When the identifier is a single field, index choices by
-                // entity ID for performance reasons
-                $id = current($this->getIdentifierValues($entity));
-                $choices[$id] = $value;
-                $this->entities[$id] = $entity;
-            }
-        }
-
-        return $choices;
-    }
-
-    /**
-     * Returns the \ReflectionProperty instance for a property of the
-     * underlying class.
-     *
-     * @param string $property The name of the property
-     *
-     * @return \ReflectionProperty The reflection instance
-     */
-    private function getReflProperty($property)
-    {
-        if (!isset($this->reflProperties[$property])) {
-            $this->reflProperties[$property] = new \ReflectionProperty($this->class, $property);
-            $this->reflProperties[$property]->setAccessible(true);
-        }
-
-        return $this->reflProperties[$property];
     }
 }

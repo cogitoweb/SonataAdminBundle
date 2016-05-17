@@ -14,30 +14,16 @@ namespace Sonata\AdminBundle\Tests\Form\Type;
 use Sonata\AdminBundle\Form\Type\ModelType;
 use Symfony\Component\Form\Test\TypeTestCase;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\PropertyAccess\PropertyAccess;
 
 class ModelTypeTest extends TypeTestCase
 {
-    protected $type;
-
-    public function setUp()
-    {
-        parent::setUp();
-
-        $this->type = new ModelType(PropertyAccess::createPropertyAccessor());
-    }
-
     public function testGetDefaultOptions()
     {
+        $type = new ModelType();
         $modelManager = $this->getMock('Sonata\AdminBundle\Model\ModelManagerInterface');
-
         $optionResolver = new OptionsResolver();
 
-        if (!method_exists('Symfony\Component\Form\AbstractType', 'getBlockPrefix')) {
-            $this->type->setDefaultOptions($optionResolver);
-        } else {
-            $this->type->configureOptions($optionResolver);
-        }
+        $type->setDefaultOptions($optionResolver);
 
         $options = $optionResolver->resolve(array('model_manager' => $modelManager, 'choices' => array()));
 
@@ -55,26 +41,19 @@ class ModelTypeTest extends TypeTestCase
         $this->assertSame('link_list', $options['btn_list']);
         $this->assertSame('link_delete', $options['btn_delete']);
         $this->assertSame('SonataAdminBundle', $options['btn_catalogue']);
-        if (interface_exists('Symfony\Component\Form\ChoiceList\Loader\ChoiceLoaderInterface')) { // SF2.7+
-            $this->assertInstanceOf('Sonata\AdminBundle\Form\ChoiceList\ModelChoiceLoader', $options['choice_loader']);
-        } else {
-            $this->assertInstanceOf('Sonata\AdminBundle\Form\ChoiceList\ModelChoiceList', $options['choice_list']);
-        }
+        $this->assertInstanceOf('Sonata\AdminBundle\Form\ChoiceList\ModelChoiceList', $options['choice_list']);
     }
 
     /**
      * @dataProvider getCompoundOptionTests
      */
-    public function testCompoundOption($expectedCompound, $multiple, $expanded)
+    public function testCompundOption($expectedCompound, $multiple, $expanded)
     {
+        $type = new ModelType();
         $modelManager = $this->getMock('Sonata\AdminBundle\Model\ModelManagerInterface');
         $optionResolver = new OptionsResolver();
 
-        if (!method_exists('Symfony\Component\Form\AbstractType', 'getBlockPrefix')) {
-            $this->type->setDefaultOptions($optionResolver);
-        } else {
-            $this->type->configureOptions($optionResolver);
-        }
+        $type->setDefaultOptions($optionResolver);
 
         $options = $optionResolver->resolve(array('model_manager' => $modelManager, 'choices' => array(), 'multiple' => $multiple, 'expanded' => $expanded));
 
@@ -92,12 +71,7 @@ class ModelTypeTest extends TypeTestCase
         $this->assertSame('link_list', $options['btn_list']);
         $this->assertSame('link_delete', $options['btn_delete']);
         $this->assertSame('SonataAdminBundle', $options['btn_catalogue']);
-
-        if (interface_exists('Symfony\Component\Form\ChoiceList\Loader\ChoiceLoaderInterface')) { // SF2.7+
-            $this->assertInstanceOf('Sonata\AdminBundle\Form\ChoiceList\ModelChoiceLoader', $options['choice_loader']);
-        } else {
-            $this->assertInstanceOf('Sonata\AdminBundle\Form\ChoiceList\ModelChoiceList', $options['choice_list']);
-        }
+        $this->assertInstanceOf('Sonata\AdminBundle\Form\ChoiceList\ModelChoiceList', $options['choice_list']);
     }
 
     public function getCompoundOptionTests()

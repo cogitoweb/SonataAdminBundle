@@ -9,16 +9,18 @@ The Export action
 
 This document will cover the Export action and related configuration options.
 
+
 Basic configuration
 -------------------
 
-.. note::
+To do:
 
-    **TODO**:
-    * any global (yml) options that affect the export actions
-    * how to disable (some of) the default formats
-    * how to add new export formats
-    * customising the templates used to render the output
-    * customising the query used to fetch the results
+- any global (yml) options that affect the export actions
+- how to disable (some of) the default formats
+- how to add new export formats
+- customising the templates used to render the output
+- customising the query used to fetch the results
+
+
 
 .. _`issues on Github`: https://github.com/sonata-project/SonataAdminBundle/issues/1519

@@ -13,30 +13,14 @@ namespace Sonata\AdminBundle\Form\Type\Filter;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-/**
- * Class DefaultType.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
- */
 class DefaultType extends AbstractType
 {
     /**
      * {@inheritdoc}
-     *
-     * @todo Remove when dropping Symfony <2.8 support
      */
     public function getName()
-    {
-        return $this->getBlockPrefix();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getBlockPrefix()
     {
         return 'sonata_type_filter_default';
     }
@@ -54,24 +38,14 @@ class DefaultType extends AbstractType
 
     /**
      * {@inheritdoc}
-     *
-     * @todo Remove it when bumping requirements to SF 2.7+
      */
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
-        $this->configureOptions($resolver);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function configureOptions(OptionsResolver $resolver)
-    {
         $resolver->setDefaults(array(
-            'operator_type' => 'hidden',
+            'operator_type'    => 'hidden',
             'operator_options' => array(),
-            'field_type' => 'text',
-            'field_options' => array(),
+            'field_type'       => 'text',
+            'field_options'    => array(),
         ));
     }
 }

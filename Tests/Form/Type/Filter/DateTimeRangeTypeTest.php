@@ -21,21 +21,17 @@ class DateTimeRangeTypeTest extends TypeTestCase
     {
         $stub = $this->getMock('Symfony\Component\Translation\TranslatorInterface');
 
-        $type = new DateTimeRangeType($stub);
+        $formType = new DateTimeRangeType($stub);
 
-        $optionResolver = new OptionsResolver();
+        $resolver = new OptionsResolver();
 
-        if (!method_exists('Symfony\Component\Form\AbstractType', 'getBlockPrefix')) {
-            $type->setDefaultOptions($optionResolver);
-        } else {
-            $type->configureOptions($optionResolver);
-        }
+        $formType->setDefaultOptions($resolver);
 
-        $options = $optionResolver->resolve();
+        $options = $resolver->resolve();
 
         $expected = array(
-            'field_type' => 'sonata_type_datetime_range',
-            'field_options' => array('date_format' => 'yyyy-MM-dd'),
+            'field_type'       => 'sonata_type_datetime_range',
+            'field_options'    => array('date_format' => 'yyyy-MM-dd'),
         );
         $this->assertSame($expected, $options);
     }

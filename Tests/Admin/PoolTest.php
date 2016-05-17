@@ -16,7 +16,7 @@ use Sonata\AdminBundle\Admin\Pool;
 class PoolTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var Pool
+     * @var Sonata\AdminBundle\Admin\Pool
      */
     private $pool = null;
 
@@ -74,20 +74,19 @@ class PoolTest extends \PHPUnit_Framework_TestCase
 
         $pool->setAdminGroups(array(
             'adminGroup1' => array(
-                'items' => array('itemKey' => array('admin' => 'sonata.user.admin.group1', 'label' => '', 'route' => '', 'route_params' => array())),
+                'items' => array('itemKey' => 'sonata.user.admin.group1'),
             ),
             'adminGroup2' => array(
-                'items' => array('itemKey' => array('admin' => 'sonata.user.admin.group2', 'label' => '', 'route' => '', 'route_params' => array())),
+                'items' => array('itemKey' => 'sonata.user.admin.group2'),
             ),
             'adminGroup3' => array(
-                'items' => array('itemKey' => array('admin' => 'sonata.user.admin.group3', 'label' => '', 'route' => '', 'route_params' => array())),
+                'items' => array('itemKey' => 'sonata.user.admin.group3'),
             ),
         ));
 
         $groups = $pool->getDashboardGroups();
 
         $this->assertCount(1, $groups);
-        $this->assertSame($admin_group1, $groups['adminGroup1']['items']['itemKey']);
     }
 
     /**

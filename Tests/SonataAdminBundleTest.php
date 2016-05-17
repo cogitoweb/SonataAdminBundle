@@ -14,7 +14,6 @@ namespace Sonata\AdminBundle\Tests;
 use Sonata\AdminBundle\DependencyInjection\Compiler\AddDependencyCallsCompilerPass;
 use Sonata\AdminBundle\DependencyInjection\Compiler\AddFilterTypeCompilerPass;
 use Sonata\AdminBundle\DependencyInjection\Compiler\ExtensionCompilerPass;
-use Sonata\AdminBundle\DependencyInjection\Compiler\GlobalVariablesCompilerPass;
 use Sonata\AdminBundle\SonataAdminBundle;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
@@ -28,9 +27,9 @@ class SonataAdminBundleTest extends \PHPUnit_Framework_TestCase
 {
     public function testBuild()
     {
-        $containerBuilder = $this->getMock('Symfony\Component\DependencyInjection\ContainerBuilder', array('addCompilerPass'));
+        $containerBuilder = $this->getMock('Symfony\Component\DependencyInjection\ContainerBuilder');
 
-        $containerBuilder->expects($this->exactly(4))
+        $containerBuilder->expects($this->exactly(3))
             ->method('addCompilerPass')
             ->will($this->returnCallback(function (CompilerPassInterface $pass, $type = PassConfig::TYPE_BEFORE_OPTIMIZATION) {
                 if ($pass instanceof AddDependencyCallsCompilerPass) {
@@ -42,10 +41,6 @@ class SonataAdminBundleTest extends \PHPUnit_Framework_TestCase
                 }
 
                 if ($pass instanceof ExtensionCompilerPass) {
-                    return;
-                }
-
-                if ($pass instanceof GlobalVariablesCompilerPass) {
                     return;
                 }
 

@@ -16,11 +16,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class ExplainAdminCommand.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
- */
 class ExplainAdminCommand extends ContainerAwareCommand
 {
     /**
@@ -89,14 +84,11 @@ class ExplainAdminCommand extends ContainerAwareCommand
             $output->writeln(sprintf('  - % -25s  % -15s % -15s', $name, $fieldDescription->getType(), $fieldDescription->getTemplate()));
         }
 
-        if ($this->getContainer()->has('validator.validator_factory')) {
-            $metadata = $this->getContainer()->get('validator.validator_factory')->getMetadataFor($admin->getClass());
-        } else {
-            $metadata = $this->getContainer()->get('validator')->getMetadataFor($admin->getClass());
-        }
+        $validatorFactory = $this->getContainer()->get('validator')->getMetadataFactory();
+        $metadata = $validatorFactory->getMetadataFor($admin->getClass());
 
         $output->writeln('');
-        $output->writeln('<comment>Validation Framework</comment> - http://symfony.com/doc/3.0/book/validation.html');
+        $output->writeln('<comment>Validation Framework</comment> - http://symfony.com/doc/2.0/book/validation.html');
         $output->writeln('<info>Properties constraints</info>');
 
         if (count($metadata->properties) == 0) {

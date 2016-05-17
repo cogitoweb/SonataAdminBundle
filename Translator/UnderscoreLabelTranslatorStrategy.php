@@ -11,11 +11,6 @@
 
 namespace Sonata\AdminBundle\Translator;
 
-/**
- * Class UnderscoreLabelTranslatorStrategy.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
- */
 class UnderscoreLabelTranslatorStrategy implements LabelTranslatorStrategyInterface
 {
     /**

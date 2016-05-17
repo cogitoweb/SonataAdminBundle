@@ -11,49 +11,44 @@
 
 namespace Sonata\AdminBundle\Util;
 
-use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormBuilder;
 
-/**
- * Class FormBuilderIterator.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
- */
 class FormBuilderIterator extends \RecursiveArrayIterator
 {
-    /**
-     * @var \ReflectionProperty
-     */
     protected static $reflection;
 
-    /**
-     * @var FormBuilderInterface
-     */
     protected $formBuilder;
 
-    /**
-     * @var array
-     */
     protected $keys = array();
 
-    /**
-     * @var bool|string
-     */
     protected $prefix;
 
     /**
-     * @var \ArrayIterator
+     * @param \Symfony\Component\Form\FormBuilder $formBuilder
+     * @param bool                                $prefix
      */
-    protected $iterator;
-
-    /**
-     * @param FormBuilderInterface $formBuilder
-     * @param bool                 $prefix
-     */
-    public function __construct(FormBuilderInterface $formBuilder, $prefix = false)
+    public function __construct(FormBuilder $formBuilder, $prefix = false)
     {
         $this->formBuilder = $formBuilder;
-        $this->prefix = $prefix ? $prefix : $formBuilder->getName();
-        $this->iterator = new \ArrayIterator(self::getKeys($formBuilder));
+        $this->prefix      = $prefix ? $prefix : $formBuilder->getName();
+        $this->iterator    = new \ArrayIterator(self::getKeys($formBuilder));
+    }
+
+    /**
+     * @static
+     *
+     * @param \Symfony\Component\Form\FormBuilder $formBuilder
+     *
+     * @return array
+     */
+    private static function getKeys(FormBuilder $formBuilder)
+    {
+        if (!self::$reflection) {
+            self::$reflection = new \ReflectionProperty(get_class($formBuilder), 'children');
+            self::$reflection->setAccessible(true);
+        }
+
+        return array_keys(self::$reflection->getValue($formBuilder));
     }
 
     /**
@@ -112,17 +107,5 @@ class FormBuilderIterator extends \RecursiveArrayIterator
     public function hasChildren()
     {
         return count(self::getKeys($this->current())) > 0;
-    }
-
-    /**
-     * @static
-     *
-     * @param FormBuilderInterface $formBuilder
-     *
-     * @return array
-     */
-    private static function getKeys(FormBuilderInterface $formBuilder)
-    {
-        return array_keys($formBuilder->all());
     }
 }

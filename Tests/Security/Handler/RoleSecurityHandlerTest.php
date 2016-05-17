@@ -13,7 +13,6 @@ namespace Sonata\AdminBundle\Tests\Security\Handler;
 
 use Sonata\AdminBundle\Admin\AdminInterface;
 use Sonata\AdminBundle\Security\Handler\RoleSecurityHandler;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
 use Symfony\Component\Security\Core\SecurityContextInterface;
 
@@ -30,18 +29,13 @@ class RoleSecurityHandlerTest extends \PHPUnit_Framework_TestCase
     private $admin;
 
     /**
-     * @var AuthorizationCheckerInterface|SecurityContextInterface
+     * @var SecurityContextInterface
      */
-    private $authorizationChecker;
+    private $securityContext;
 
     public function setUp()
     {
-        // Set the SecurityContext for Symfony <2.6
-        if (interface_exists('Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface')) {
-            $this->authorizationChecker = $this->getMock('Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface');
-        } else {
-            $this->authorizationChecker = $this->getMock('Symfony\Component\Security\Core\SecurityContextInterface');
-        }
+        $this->securityContext = $this->getMock('Symfony\Component\Security\Core\SecurityContextInterface');
 
         $this->admin = $this->getMock('Sonata\AdminBundle\Admin\AdminInterface');
     }
@@ -51,7 +45,7 @@ class RoleSecurityHandlerTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetBaseRole($expected, $code)
     {
-        $handler = new RoleSecurityHandler($this->authorizationChecker, array('ROLE_BATMAN', 'ROLE_IRONMAN'));
+        $handler = new RoleSecurityHandler($this->securityContext, array('ROLE_BATMAN', 'ROLE_IRONMAN'));
 
         $this->admin->expects($this->once())
             ->method('getCode')
@@ -81,7 +75,7 @@ class RoleSecurityHandlerTest extends \PHPUnit_Framework_TestCase
             ->method('getCode')
             ->will($this->returnValue($adminCode));
 
-        $this->authorizationChecker->expects($this->any())
+        $this->securityContext->expects($this->any())
             ->method('isGranted')
             ->will($this->returnCallback(function (array $attributes, $object) {
 
@@ -185,7 +179,7 @@ class RoleSecurityHandlerTest extends \PHPUnit_Framework_TestCase
             ->method('getCode')
             ->will($this->returnValue('foo.bar'));
 
-        $this->authorizationChecker->expects($this->any())
+        $this->securityContext->expects($this->any())
             ->method('isGranted')
             ->will($this->returnCallback(function (array $attributes, $object) {
                 throw new \RuntimeException('Something is wrong');
@@ -218,7 +212,7 @@ class RoleSecurityHandlerTest extends \PHPUnit_Framework_TestCase
      */
     private function getRoleSecurityHandler(array $superAdminRoles)
     {
-        return new RoleSecurityHandler($this->authorizationChecker, $superAdminRoles);
+        return new RoleSecurityHandler($this->securityContext, $superAdminRoles);
     }
 
     /**

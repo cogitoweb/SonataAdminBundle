@@ -11,20 +11,12 @@
 
 namespace Sonata\AdminBundle\Admin;
 
-/**
- * Class FieldDescriptionCollection.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
- */
 class FieldDescriptionCollection implements \ArrayAccess, \Countable
 {
-    /**
-     * @var FieldDescriptionInterface[]
-     */
     protected $elements = array();
 
     /**
-     * @param FieldDescriptionInterface $fieldDescription
+     * @param \Sonata\AdminBundle\Admin\FieldDescriptionInterface $fieldDescription
      */
     public function add(FieldDescriptionInterface $fieldDescription)
     {

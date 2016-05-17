@@ -127,14 +127,14 @@ class GenerateAdminCommandTest extends \PHPUnit_Framework_TestCase
         $command = $this->application->find('sonata:admin:generate');
         $commandTester = new CommandTester($command);
         $commandTester->execute(array(
-            'command' => $command->getName(),
-            'model' => 'Sonata\AdminBundle\Tests\Fixtures\Bundle\Entity\Foo',
-            '--bundle' => 'AcmeDemoBundle',
-            '--admin' => 'FooAdmin',
+            'command'      => $command->getName(),
+            'model'        => 'Sonata\AdminBundle\Tests\Fixtures\Bundle\Entity\Foo',
+            '--bundle'     => 'AcmeDemoBundle',
+            '--admin'      => 'FooAdmin',
             '--controller' => 'FooAdminController',
-            '--services' => 'admin.yml',
-            '--id' => 'acme_demo_admin.admin.foo',
-        ), array('interactive' => false));
+            '--services'   => 'admin.yml',
+            '--id'         => 'acme_demo_admin.admin.foo',
+            ), array('interactive' => false));
 
         $expectedOutput = '';
         $expectedOutput .= sprintf('%3$sThe admin class "Sonata\AdminBundle\Tests\Fixtures\Bundle\Admin\FooAdmin" has been generated under the file "%1$s%2$sAdmin%2$sFooAdmin.php".%3$s', $this->tempDirectory, DIRECTORY_SEPARATOR, PHP_EOL);
@@ -148,8 +148,8 @@ class GenerateAdminCommandTest extends \PHPUnit_Framework_TestCase
         $this->assertFileExists($this->tempDirectory.'/Resources/config/admin.yml');
 
         $adminContent = file_get_contents($this->tempDirectory.'/Admin/FooAdmin.php');
-        $this->assertContains('class FooAdmin extends AbstractAdmin', $adminContent);
-        $this->assertContains('use Sonata\AdminBundle\Admin\AbstractAdmin;', $adminContent);
+        $this->assertContains('class FooAdmin extends Admin', $adminContent);
+        $this->assertContains('use Sonata\AdminBundle\Admin\Admin;', $adminContent);
         $this->assertContains('use Sonata\AdminBundle\Datagrid\DatagridMapper;', $adminContent);
         $this->assertContains('use Sonata\AdminBundle\Datagrid\ListMapper;', $adminContent);
         $this->assertContains('use Sonata\AdminBundle\Form\FormMapper;', $adminContent);
@@ -165,7 +165,7 @@ class GenerateAdminCommandTest extends \PHPUnit_Framework_TestCase
 
         $configServiceContent = file_get_contents($this->tempDirectory.'/Resources/config/admin.yml');
         $this->assertContains('services:'."\n".'    acme_demo_admin.admin.foo', $configServiceContent);
-        $this->assertContains('            - { name: sonata.admin, manager_type: foo, group: admin, label: Foo }', $configServiceContent);
+        $this->assertContains('            - {name: sonata.admin, manager_type: foo, group: admin, label: Foo}', $configServiceContent);
     }
 
     public function testExecuteWithExceptionNoModelManagers()
@@ -177,14 +177,14 @@ class GenerateAdminCommandTest extends \PHPUnit_Framework_TestCase
         $command = $this->application->find('sonata:admin:generate');
         $commandTester = new CommandTester($command);
         $commandTester->execute(array(
-            'command' => $command->getName(),
-            'model' => 'Sonata\AdminBundle\Tests\Fixtures\Bundle\Entity\Foo',
-            '--bundle' => 'AcmeDemoBundle',
-            '--admin' => 'FooAdmin',
+            'command'      => $command->getName(),
+            'model'        => 'Sonata\AdminBundle\Tests\Fixtures\Bundle\Entity\Foo',
+            '--bundle'     => 'AcmeDemoBundle',
+            '--admin'      => 'FooAdmin',
             '--controller' => 'FooAdminController',
-            '--services' => 'admin.yml',
-            '--id' => 'acme_demo_admin.admin.foo',
-        ), array('interactive' => false));
+            '--services'   => 'admin.yml',
+            '--id'         => 'acme_demo_admin.admin.foo',
+            ), array('interactive' => false));
     }
 
     /**
@@ -211,9 +211,11 @@ class GenerateAdminCommandTest extends \PHPUnit_Framework_TestCase
                     switch ($questionClean) {
                         case 'Do you want to generate a controller':
                             return 'yes';
+                            break;
 
                         case 'Do you want to update the services YAML configuration file':
                             return 'yes';
+                            break;
                     }
 
                     return $default;
@@ -228,24 +230,31 @@ class GenerateAdminCommandTest extends \PHPUnit_Framework_TestCase
                     switch ($questionClean) {
                         case 'The fully qualified model class':
                             return $modelEntity;
+                            break;
 
                         case 'The bundle name':
                             return 'AcmeDemoBundle';
+                            break;
 
                         case 'The admin class basename':
                             return 'FooAdmin';
+                            break;
 
                         case 'The controller class basename':
                             return 'FooAdminController';
+                            break;
 
                         case 'The services YAML configuration file':
                             return 'admin.yml';
+                            break;
 
                         case 'The admin service ID':
                             return 'acme_demo_admin.admin.foo';
+                            break;
 
                         case 'The manager type':
                             return 'foo';
+                            break;
                     }
 
                     return $default;
@@ -264,31 +273,40 @@ class GenerateAdminCommandTest extends \PHPUnit_Framework_TestCase
                         // confirmations
                         case 'Do you want to generate a controller':
                             return 'yes';
+                            break;
 
                         case 'Do you want to update the services YAML configuration file':
                             return 'yes';
+                            break;
 
                         // inputs
                         case 'The fully qualified model class':
                             return $modelEntity;
+                            break;
 
                         case 'The bundle name':
                             return 'AcmeDemoBundle';
+                            break;
 
                         case 'The admin class basename':
                             return 'FooAdmin';
+                            break;
 
                         case 'The controller class basename':
                             return 'FooAdminController';
+                            break;
 
                         case 'The services YAML configuration file':
                             return 'admin.yml';
+                            break;
 
                         case 'The admin service ID':
                             return 'acme_demo_admin.admin.foo';
+                            break;
 
                         case 'The manager type':
                             return 'foo';
+                            break;
                     }
 
                     return false;
@@ -300,7 +318,7 @@ class GenerateAdminCommandTest extends \PHPUnit_Framework_TestCase
         $commandTester = new CommandTester($command);
         $commandTester->execute(array(
             'command' => $command->getName(),
-            'model' => $modelEntity,
+            'model'   => $modelEntity,
             ));
 
         $expectedOutput = PHP_EOL.str_pad('', 41, ' ').PHP_EOL.'  Welcome to the Sonata admin generator  '.PHP_EOL.str_pad('', 41, ' ').PHP_EOL.PHP_EOL;
@@ -315,8 +333,8 @@ class GenerateAdminCommandTest extends \PHPUnit_Framework_TestCase
         $this->assertFileExists($this->tempDirectory.'/Resources/config/admin.yml');
 
         $adminContent = file_get_contents($this->tempDirectory.'/Admin/FooAdmin.php');
-        $this->assertContains('class FooAdmin extends AbstractAdmin', $adminContent);
-        $this->assertContains('use Sonata\AdminBundle\Admin\AbstractAdmin;', $adminContent);
+        $this->assertContains('class FooAdmin extends Admin', $adminContent);
+        $this->assertContains('use Sonata\AdminBundle\Admin\Admin;', $adminContent);
         $this->assertContains('use Sonata\AdminBundle\Datagrid\DatagridMapper;', $adminContent);
         $this->assertContains('use Sonata\AdminBundle\Datagrid\ListMapper;', $adminContent);
         $this->assertContains('use Sonata\AdminBundle\Form\FormMapper;', $adminContent);
@@ -332,7 +350,7 @@ class GenerateAdminCommandTest extends \PHPUnit_Framework_TestCase
 
         $configServiceContent = file_get_contents($this->tempDirectory.'/Resources/config/admin.yml');
         $this->assertContains('services:'."\n".'    acme_demo_admin.admin.foo', $configServiceContent);
-        $this->assertContains('            - { name: sonata.admin, manager_type: foo, group: admin, label: Foo }', $configServiceContent);
+        $this->assertContains('            - {name: sonata.admin, manager_type: foo, group: admin, label: Foo}', $configServiceContent);
     }
 
     public function getExecuteInteractiveTests()

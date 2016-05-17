@@ -17,11 +17,11 @@ The basic class definition will look the same as the ``CategoryAdmin``:
     // src/AppBundle/Admin/BlogPostAdmin.php
     namespace AppBundle\Admin;
 
-    use Sonata\AdminBundle\Admin\AbstractAdmin;
+    use Sonata\AdminBundle\Admin\Admin;
     use Sonata\AdminBundle\Datagrid\ListMapper;
     use Sonata\AdminBundle\Form\FormMapper;
 
-    class BlogPostAdmin extends AbstractAdmin
+    class BlogPostAdmin extends Admin
     {
         protected function configureFormFields(FormMapper $formMapper)
         {
@@ -39,9 +39,11 @@ The same applies to the service definition:
 .. code-block:: yaml
 
     # app/config/services.yml
-
+    
+    # ...
     services:
         # ...
+
         admin.blog_post:
             class: AppBundle\Admin\BlogPostAdmin
             arguments: [~, AppBundle\Entity\BlogPost, ~]
@@ -106,9 +108,6 @@ as choice.
             ))
         ;
     }
-.. note::
-
-    The `property`_ option is not supported by Symfony >= 2.7. You should use `choice_label`_ instead.
 
 As each blog post will only have one category, it renders as a select list:
 
@@ -234,12 +233,9 @@ successfully created.*
 While it's very friendly of the SonataAdminBundle to notify the admin of a
 successful creation, the classname and some sort of hash aren't really nice to
 read. This is the default string representation of an object in the
-SonataAdminBundle. You can change it by defining a ``toString()`` method in the
-Admin class. This receives the object to transform to a string as the first parameter:
-
-.. note::
-
-    No underscore prefix! ``toString()`` is correct!
+SonataAdminBundle. You can change it by defining a ``toString()`` (note: no
+underscore prefix) method in the Admin class. This receives the object to
+transform to a string as the first parameter:
 
 .. code-block:: php
 
@@ -248,7 +244,7 @@ Admin class. This receives the object to transform to a string as the first para
     // ...
     use AppBundle\Entity\BlogPost;
 
-    class BlogPostAdmin extends AbstractAdmin
+    class BlogPostAdmin extends Admin
     {
         // ...
 
@@ -274,5 +270,3 @@ and datagrid actions.
 .. _`Symfony Form component`: http://symfony.com/doc/current/book/forms.html
 .. _`field type reference`: http://symfony.com/doc/current/reference/forms/types.html
 .. _`entity field type`: http://symfony.com/doc/current/reference/forms/types/entity.html
-.. _`choice_label`: http://symfony.com/doc/current/reference/forms/types/entity.html#choice-label
-.. _`property`: http://symfony.com/doc/2.6/reference/forms/types/entity.html#property

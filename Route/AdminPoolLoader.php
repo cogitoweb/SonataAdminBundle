@@ -12,22 +12,15 @@
 namespace Sonata\AdminBundle\Route;
 
 use Sonata\AdminBundle\Admin\Pool;
-use Symfony\Component\Config\Loader\Loader;
+use Symfony\Component\Config\Loader\FileLoader;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Routing\RouteCollection as SymfonyRouteCollection;
 
-/**
- * Class AdminPoolLoader.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
- */
-class AdminPoolLoader extends Loader
+class AdminPoolLoader extends FileLoader
 {
-    const ROUTE_TYPE_NAME = 'sonata_admin';
-
     /**
-     * @var Pool
+     * @var \Sonata\AdminBundle\Admin\Pool
      */
     protected $pool;
 
@@ -36,21 +29,18 @@ class AdminPoolLoader extends Loader
      */
     protected $adminServiceIds = array();
 
-    /**
-     * @var ContainerInterface
-     */
     protected $container;
 
     /**
-     * @param Pool               $pool
-     * @param array              $adminServiceIds
-     * @param ContainerInterface $container
+     * @param \Sonata\AdminBundle\Admin\Pool                            $pool
+     * @param array                                                     $adminServiceIds
+     * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
      */
-    public function __construct(Pool $pool, array $adminServiceIds, ContainerInterface $container)
+    public function __construct(Pool $pool, $adminServiceIds, ContainerInterface $container)
     {
-        $this->pool = $pool;
-        $this->adminServiceIds = $adminServiceIds;
-        $this->container = $container;
+        $this->pool             = $pool;
+        $this->adminServiceIds  = $adminServiceIds;
+        $this->container        = $container;
     }
 
     /**
@@ -58,7 +48,11 @@ class AdminPoolLoader extends Loader
      */
     public function supports($resource, $type = null)
     {
-        return $type === self::ROUTE_TYPE_NAME;
+        if ($type == 'sonata_admin') {
+            return true;
+        }
+
+        return false;
     }
 
     /**

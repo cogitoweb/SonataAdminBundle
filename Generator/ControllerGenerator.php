@@ -15,21 +15,15 @@ use Sensio\Bundle\GeneratorBundle\Generator\Generator;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
 /**
- * Class ControllerGenerator.
- *
- * @author  Marek Stipek <mario.dweller@seznam.cz>
- * @author  Simon Cosandey <simon.cosandey@simseo.ch>
+ * @author Marek Stipek <mario.dweller@seznam.cz>
+ * @author Simon Cosandey <simon.cosandey@simseo.ch>
  */
 class ControllerGenerator extends Generator
 {
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $class;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $file;
 
     /**
@@ -66,7 +60,7 @@ class ControllerGenerator extends Generator
 
         $this->renderFile('AdminController.php.twig', $this->file, array(
             'classBasename' => array_pop($parts),
-            'namespace' => implode('\\', $parts),
+            'namespace'     => implode('\\', $parts),
         ));
     }
 

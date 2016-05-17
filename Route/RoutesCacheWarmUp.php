@@ -14,21 +14,10 @@ namespace Sonata\AdminBundle\Route;
 use Sonata\AdminBundle\Admin\Pool;
 use Symfony\Component\HttpKernel\CacheWarmer\CacheWarmerInterface;
 
-/**
- * Class RoutesCacheWarmUp.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
- */
 class RoutesCacheWarmUp implements CacheWarmerInterface
 {
-    /**
-     * @var RoutesCache
-     */
     protected $cache;
 
-    /**
-     * @var Pool
-     */
     protected $pool;
 
     /**

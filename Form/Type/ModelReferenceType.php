@@ -14,14 +14,8 @@ namespace Sonata\AdminBundle\Form\Type;
 use Sonata\AdminBundle\Form\DataTransformer\ModelToIdTransformer;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-/**
- * Class ModelReferenceType.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
- */
 class ModelReferenceType extends AbstractType
 {
     /**
@@ -34,23 +28,13 @@ class ModelReferenceType extends AbstractType
 
     /**
      * {@inheritdoc}
-     *
-     * @todo Remove it when bumping requirements to SF 2.7+
      */
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
-        $this->configureOptions($resolver);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function configureOptions(OptionsResolver $resolver)
-    {
         $resolver->setDefaults(array(
-            'compound' => false,
+            'compound'      => false,
             'model_manager' => null,
-            'class' => null,
+            'class'         => null,
         ));
     }
 
@@ -64,18 +48,8 @@ class ModelReferenceType extends AbstractType
 
     /**
      * {@inheritdoc}
-     *
-     * @todo Remove when dropping Symfony <2.8 support
      */
     public function getName()
-    {
-        return $this->getBlockPrefix();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getBlockPrefix()
     {
         return 'sonata_type_model_reference';
     }

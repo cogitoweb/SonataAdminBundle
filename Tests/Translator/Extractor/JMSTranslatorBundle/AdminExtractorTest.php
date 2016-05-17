@@ -9,12 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Sonata\AdminBundle\Tests\Translator\Extractor\JMSTranslatorBundle;
+namespace Sonata\AdminBundle\Translator\Extractor\JMSTranslatorBundle;
 
 use JMS\TranslationBundle\Model\Message;
 use Sonata\AdminBundle\Admin\AdminInterface;
 use Sonata\AdminBundle\Admin\Pool;
-use Sonata\AdminBundle\Translator\Extractor\JMSTranslatorBundle\AdminExtractor;
 
 /**
  * Test for AdminExtractor.

@@ -16,11 +16,6 @@ use Sonata\AdminBundle\Security\Handler\AclSecurityHandlerInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Security\Acl\Domain\UserSecurityIdentity;
 
-/**
- * Class ObjectAclManipulator.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
- */
 abstract class ObjectAclManipulator implements ObjectAclManipulatorInterface
 {
     /**
@@ -37,8 +32,8 @@ abstract class ObjectAclManipulator implements ObjectAclManipulatorInterface
      */
     public function configureAcls(OutputInterface $output, AdminInterface $admin, \Traversable $oids, UserSecurityIdentity $securityIdentity = null)
     {
-        $countAdded = 0;
-        $countUpdated = 0;
+        $countAdded      = 0;
+        $countUpdated    = 0;
         $securityHandler = $admin->getSecurityHandler();
         if (!$securityHandler instanceof AclSecurityHandlerInterface) {
             $output->writeln(sprintf('Admin `%s` is not configured to use ACL : <info>ignoring</info>', $admin->getCode()));

@@ -119,6 +119,24 @@ class ListMapperTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('fooName', $fieldDescription->getOption('label'));
     }
 
+    /**
+     * @group legacy
+     */
+    public function testLegacyAddViewInlineAction()
+    {
+        $this->assertFalse($this->listMapper->has('_action'));
+        $this->listMapper->add('_action', 'actions', array('actions' => array('view' => array())));
+
+        $this->assertTrue($this->listMapper->has('_action'));
+
+        $fieldDescription = $this->listMapper->get('_action');
+
+        $this->assertInstanceOf('Sonata\AdminBundle\Admin\FieldDescriptionInterface', $fieldDescription);
+        $this->assertSame('_action', $fieldDescription->getName());
+        $this->assertCount(1, $fieldDescription->getOption('actions'));
+        $this->assertSame(array('show' => array()), $fieldDescription->getOption('actions'));
+    }
+
     public function testAddViewInlineAction()
     {
         $this->assertFalse($this->listMapper->has('_action'));
@@ -184,28 +202,6 @@ class ListMapperTest extends \PHPUnit_Framework_TestCase
         }
 
         $this->fail('Failed asserting that exception of type "\RuntimeException" is thrown.');
-    }
-
-    public function testAutoAddVirtualOption()
-    {
-        foreach (array('actions', 'batch', 'select') as $type) {
-            $this->listMapper->add('_'.$type, $type);
-        }
-
-        foreach ($this->fieldDescriptionCollection as $field) {
-            $this->assertTrue($field->isVirtual(), 'Failed asserting that FieldDescription with type "'.$field->getType().'" is tagged with virtual flag.');
-        }
-    }
-
-    public function testKeys()
-    {
-        $fieldDescription1 = $this->getFieldDescriptionMock('fooName1', 'fooLabel1');
-        $fieldDescription2 = $this->getFieldDescriptionMock('fooName2', 'fooLabel2');
-
-        $this->listMapper->add($fieldDescription1);
-        $this->listMapper->add($fieldDescription2);
-
-        $this->assertSame(array('fooName1', 'fooName2'), $this->listMapper->keys());
     }
 
     public function testReorder()

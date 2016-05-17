@@ -11,20 +11,11 @@ For example, if your method looks like that :
 
 .. code-block:: php
 
-    <?php
-    // src/AppBundle/Entity/Post.php
-
-    class Post
+    public function __toString()
     {
-        // ...
-
-        public function __toString()
-        {
-            return $this->getTitle();
-        }
-
-        // ...
+        return $this->getTitle();
     }
+
 
 You cannot be sure your object will *always* have a title when the bundle will want to convert it to a string.
 So in order to avoid any fatal error, you must return an empty string
@@ -32,31 +23,22 @@ So in order to avoid any fatal error, you must return an empty string
 
 .. code-block:: php
 
-    <?php
-    // src/AppBundle/Entity/Post.php
-
-    class Post
+    public function __toString()
     {
-        // ...
-
-        public function __toString()
-        {
-            return $this->getTitle() ?: '';
-        }
-
-        // ...
+        return $this->getTitle() ?: '';
     }
 
 
 .. _`__toString`: http://www.php.net/manual/en/language.oop5.magic.php#object.tostring
 
-Large filters and long URLs problem
+
+Large filters and long urls problem
 -----------------------------------
 
-If you will try to add hundreds of filters to a single admin class, you will get a problem - very long generated filter form URL.
+If you will try to add hundreds of filters to a single admin class, you will get a problem - very long generated filter form url.
 In most cases you will get server response like *Error 400 Bad Request* OR *Error 414 Request-URI Too Long*. According to
 `a StackOverflow discussion <http://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers>`_
-"safe" URL length is just around 2000 characters.
+"safe" url length is just around 2000 characters.
 You can fix this issue by adding a simple JQuery piece of code on your edit template :
 
 .. code-block:: javascript
@@ -68,7 +50,6 @@ You can fix this issue by adding a simple JQuery piece of code on your edit temp
                 $(this).addClass('had-value-on-load');
             }
         });
-
         // REMOVE ALL EMPTY INPUT FROM FILTER FORM (except inputs, which has class 'had-value-on-load')
         $(".sonata-filter-form").submit(function() {
             $(".sonata-filter-form input").add(".sonata-filter-form select").each(function(){
@@ -78,3 +59,5 @@ You can fix this issue by adding a simple JQuery piece of code on your edit temp
             });
         });
     });
+
+

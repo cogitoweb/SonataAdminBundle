@@ -14,26 +14,20 @@ namespace Sonata\AdminBundle\Manipulator;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * Class ServicesManipulator.
- *
- * @author  Marek Stipek <mario.dweller@seznam.cz>
- * @author  Simon Cosandey <simon.cosandey@simseo.ch>
+ * @author Marek Stipek <mario.dweller@seznam.cz>
+ * @author Simon Cosandey <simon.cosandey@simseo.ch>
  */
 class ServicesManipulator
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $file;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $template = '    %s:
         class: %s
         arguments: [~, %s, %s]
         tags:
-            - { name: sonata.admin, manager_type: %s, group: admin, label: %s }
+            - {name: sonata.admin, manager_type: %s, group: admin, label: %s}
 ';
 
     /**
@@ -99,6 +93,6 @@ class ServicesManipulator
                 $serviceId,
                 $this->file
             ));
-        }
+        };
     }
 }

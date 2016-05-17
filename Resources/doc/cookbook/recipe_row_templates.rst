@@ -11,6 +11,7 @@ you can tweak the layout into something like this:
    :alt: Inline Row from the SonataNewsBundle
    :width: 700px
 
+
 The recipe
 ----------
 
@@ -41,7 +42,7 @@ Two template keys need to be set:
             <call method="setTemplates">
                 <argument type="collection">
                     <argument key="inner_list_row">
-                        AppBundle:Admin:inner_row_comment.html.twig
+                        YourNSYourBundle:Admin:inner_row_comment.html.twig
                     </argument>
                     <argument key="base_list_field">
                         SonataAdminBundle:CRUD:base_list_flat_field.html.twig
@@ -50,6 +51,7 @@ Two template keys need to be set:
             </call>
         </service>
 
+
 Create your customized template
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -57,7 +59,7 @@ Once the templates are defined, create the template to render the row:
 
 .. code-block:: jinja
 
-    {# AppBundle:Admin:inner_row_comment.html.twig #}
+    {# This file is YourNSYourBundle:Admin:inner_row_comment.html.twig #}
 
     {# Extend the default template, which provides batch and action cells #}
     {#     as well as the valid colspan computation #}
@@ -66,7 +68,6 @@ Once the templates are defined, create the template to render the row:
     {% block row %}
 
         {# you can use fields defined in the the Admin class #}
-
         {{ object|render_list_element(admin.list['name']) }} -
         {{ object|render_list_element(admin.list['url']) }} -
         {{ object|render_list_element(admin.list['email']) }} <br />

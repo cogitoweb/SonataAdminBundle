@@ -13,20 +13,12 @@ namespace Sonata\AdminBundle\Util;
 
 use Symfony\Component\Form\FormView;
 
-/**
- * Class FormViewIterator.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
- */
 class FormViewIterator implements \RecursiveIterator
 {
-    /**
-     * @var \ArrayIterator
-     */
-    protected $iterator;
+    protected $formView;
 
     /**
-     * @param FormView $formView
+     * @param \Symfony\Component\Form\FormView $formView
      */
     public function __construct(FormView $formView)
     {

@@ -40,12 +40,15 @@ class SetupAclCommandTest extends \PHPUnit_Framework_TestCase
                         $pool->setAdminServiceIds(array('acme.admin.foo'));
 
                         return $pool;
+                        break;
 
                     case 'sonata.admin.manipulator.acl.admin':
                         return $aclManipulator;
+                        break;
 
                     case 'acme.admin.foo':
                         return $admin;
+                        break;
                 }
 
                 return;
@@ -110,12 +113,15 @@ class SetupAclCommandTest extends \PHPUnit_Framework_TestCase
                         $pool->setAdminServiceIds(array('acme.admin.foo'));
 
                         return $pool;
+                        break;
 
                     case 'sonata.admin.manipulator.acl.admin':
                         return new \stdClass();
+                        break;
 
                     case 'acme.admin.foo':
                         return $admin;
+                        break;
                 }
 
                 return;

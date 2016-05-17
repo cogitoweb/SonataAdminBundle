@@ -236,66 +236,6 @@ class DatagridTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->datagrid->hasActiveFilters());
     }
 
-    public function testHasDisplayableFilters()
-    {
-        $this->assertFalse($this->datagrid->hasDisplayableFilters());
-    }
-
-    public function testHasDisplayableFiltersNotActive()
-    {
-        $filter = $this->getMock('Sonata\AdminBundle\Filter\FilterInterface');
-        $filter->expects($this->once())
-            ->method('getName')
-            ->will($this->returnValue('foo'));
-        $filter->expects($this->any())
-            ->method('getOption')
-            ->will($this->returnValue(false));
-        $filter->expects($this->any())
-            ->method('isActive')
-            ->will($this->returnValue(false));
-
-        $this->datagrid->addFilter($filter);
-
-        $this->assertFalse($this->datagrid->hasDisplayableFilters());
-    }
-
-    public function testHasDisplayableFiltersActive()
-    {
-        $filter = $this->getMock('Sonata\AdminBundle\Filter\FilterInterface');
-        $filter->expects($this->once())
-            ->method('getName')
-            ->will($this->returnValue('bar'));
-        $filter->expects($this->any())
-            ->method('getOption')
-            ->will($this->returnValue(true));
-        $filter->expects($this->any())
-            ->method('isActive')
-            ->will($this->returnValue(true));
-
-        $this->datagrid->addFilter($filter);
-
-        $this->assertTrue($this->datagrid->hasDisplayableFilters());
-    }
-
-    public function testHasDisplayableFiltersAlwaysShow()
-    {
-        $filter = $this->getMock('Sonata\AdminBundle\Filter\FilterInterface');
-        $filter->expects($this->once())
-            ->method('getName')
-            ->will($this->returnValue('bar'));
-        $filter->expects($this->any())
-            ->method('getOption')
-            ->with($this->equalTo('show_filter'))
-            ->will($this->returnValue(true));
-        $filter->expects($this->any())
-            ->method('isActive')
-            ->will($this->returnValue(false));
-
-        $this->datagrid->addFilter($filter);
-
-        $this->assertTrue($this->datagrid->hasDisplayableFilters());
-    }
-
     public function testGetForm()
     {
         $this->assertInstanceOf('Symfony\Component\Form\Form', $this->datagrid->getForm());
@@ -470,10 +410,10 @@ class DatagridTest extends \PHPUnit_Framework_TestCase
         $this->datagrid->buildPager();
 
         $this->assertSame(array(
-            '_sort_by' => $sortBy,
-            '_page' => $page,
+            '_sort_by'  => $sortBy,
+            '_page'     => $page,
             '_per_page' => $perPage,
-            'foo' => null,
+            'foo'       => null,
         ), $this->datagrid->getValues());
         $this->assertInstanceOf('Symfony\Component\Form\FormBuilder', $this->formBuilder->get('fooFormName'));
         $this->assertSame(array('bar' => 'baz'), $this->formBuilder->get('fooFormName')->getOptions());
@@ -517,7 +457,7 @@ class DatagridTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame(array(
             '_per_page' => array('type' => null, 'value' => $perPage),
-            '_page' => array('type' => null, 'value' => $page),
+            '_page'     => array('type' => null, 'value' => $page),
         ), $this->datagrid->getValues());
         $this->assertInstanceOf('Symfony\Component\Form\FormBuilder', $this->formBuilder->get('_sort_by'));
         $this->assertInstanceOf('Symfony\Component\Form\FormBuilder', $this->formBuilder->get('_sort_order'));

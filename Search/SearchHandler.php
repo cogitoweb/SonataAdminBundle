@@ -13,19 +13,13 @@ namespace Sonata\AdminBundle\Search;
 
 use Sonata\AdminBundle\Admin\AdminInterface;
 use Sonata\AdminBundle\Admin\Pool;
-use Sonata\AdminBundle\Datagrid\PagerInterface;
 use Sonata\AdminBundle\Filter\FilterInterface;
 
 /**
- * Class SearchHandler.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
+ * @author Thomas Rabaix <thomas.rabaix@sonata-project.org>
  */
 class SearchHandler
 {
-    /**
-     * @var Pool
-     */
     protected $pool;
 
     /**
@@ -42,7 +36,7 @@ class SearchHandler
      * @param int            $page
      * @param int            $offset
      *
-     * @return PagerInterface
+     * @return \Sonata\AdminBundle\Datagrid\PagerInterface
      *
      * @throws \RuntimeException
      */
@@ -55,7 +49,7 @@ class SearchHandler
             /** @var $filter FilterInterface */
             if ($filter->getOption('global_search', false)) {
                 $filter->setCondition(FilterInterface::CONDITION_OR);
-                $datagrid->setValue($filter->getFormName(), null, $term);
+                $datagrid->setValue($name, null, $term);
                 $found = true;
             }
         }

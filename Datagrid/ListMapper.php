@@ -18,16 +18,10 @@ use Sonata\AdminBundle\Builder\ListBuilderInterface;
 use Sonata\AdminBundle\Mapper\BaseMapper;
 
 /**
- * Class ListMapper
  * This class is used to simulate the Form API.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
  */
 class ListMapper extends BaseMapper
 {
-    /**
-     * @var FieldDescriptionCollection
-     */
     protected $list;
 
     /**
@@ -38,7 +32,7 @@ class ListMapper extends BaseMapper
     public function __construct(ListBuilderInterface $listBuilder, FieldDescriptionCollection $list, AdminInterface $admin)
     {
         parent::__construct($listBuilder, $admin);
-        $this->list = $list;
+        $this->list        = $list;
     }
 
     /**
@@ -53,7 +47,7 @@ class ListMapper extends BaseMapper
         $fieldDescriptionOptions['identifier'] = true;
 
         if (!isset($fieldDescriptionOptions['route']['name'])) {
-            $routeName = ($this->admin->isGranted('EDIT') && $this->admin->hasRoute('edit')) ? 'edit' : 'show';
+            $routeName = $this->admin->isGranted('EDIT') ? 'edit' : 'show';
             $fieldDescriptionOptions['route']['name'] = $routeName;
         }
 
@@ -75,9 +69,15 @@ class ListMapper extends BaseMapper
      */
     public function add($name, $type = null, array $fieldDescriptionOptions = array())
     {
-        // Ensure batch and action pseudo-fields are tagged as virtual
-        if (in_array($type, array('actions', 'batch', 'select'))) {
-            $fieldDescriptionOptions['virtual_field'] = true;
+        // Change deprecated inline action "view" to "show"
+        if ($name == '_action' && $type == 'actions') {
+            if (isset($fieldDescriptionOptions['actions']['view'])) {
+                @trigger_error('Inline action "view" is deprecated since version 2.2.4 and will be removed in 3.0. Use inline action "show" instead.', E_USER_DEPRECATED);
+
+                $fieldDescriptionOptions['actions']['show'] = $fieldDescriptionOptions['actions']['view'];
+
+                unset($fieldDescriptionOptions['actions']['view']);
+            }
         }
 
         if ($name instanceof FieldDescriptionInterface) {
@@ -108,7 +108,9 @@ class ListMapper extends BaseMapper
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $name
+     *
+     * @return FieldDescriptionInterface
      */
     public function get($name)
     {
@@ -116,7 +118,9 @@ class ListMapper extends BaseMapper
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $key
+     *
+     * @return bool
      */
     public function has($key)
     {
@@ -124,7 +128,9 @@ class ListMapper extends BaseMapper
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $key
+     *
+     * @return ListMapper
      */
     public function remove($key)
     {
@@ -135,15 +141,9 @@ class ListMapper extends BaseMapper
     }
 
     /**
-     * {@inheritdoc}
-     */
-    final public function keys()
-    {
-        return array_keys($this->list->getElements());
-    }
-
-    /**
-     * {@inheritdoc}
+     * @param array $keys field names
+     *
+     * @return ListMapper
      */
     public function reorder(array $keys)
     {

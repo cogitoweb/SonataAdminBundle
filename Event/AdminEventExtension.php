@@ -11,7 +11,7 @@
 
 namespace Sonata\AdminBundle\Event;
 
-use Sonata\AdminBundle\Admin\AbstractAdminExtension;
+use Sonata\AdminBundle\Admin\AdminExtension;
 use Sonata\AdminBundle\Admin\AdminInterface;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
@@ -20,12 +20,7 @@ use Sonata\AdminBundle\Form\FormMapper;
 use Sonata\AdminBundle\Show\ShowMapper;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * Class AdminEventExtension.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
- */
-class AdminEventExtension extends AbstractAdminExtension
+class AdminEventExtension extends AdminExtension
 {
     protected $eventDispatcher;
 

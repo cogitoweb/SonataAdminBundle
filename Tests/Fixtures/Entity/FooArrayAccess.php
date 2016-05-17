@@ -5,15 +5,12 @@ namespace Sonata\AdminBundle\Tests\Fixtures\Entity;
 class FooArrayAccess implements \ArrayAccess
 {
     // methods to enable ArrayAccess
-    public function offsetExists($offset)
-    {
+    public function offsetExists($offset) {
         $value = $this->offsetGet($offset);
-
         return $value !== null;
     }
 
-    public function offsetGet($offset)
-    {
+    public function offsetGet($offset) {
         $offset = str_replace('_', '', $offset); // method names always use camels, field names can use snakes
         $methodName = "get$offset";
         if (method_exists($this, $methodName)) {
@@ -23,13 +20,11 @@ class FooArrayAccess implements \ArrayAccess
         }
     }
 
-    public function offsetSet($offset, $value)
-    {
+    public function offsetSet($offset, $value) {
         throw new \BadMethodCallException ("Array access of class " . get_class($this) . " is read-only!");
     }
 
-    public function offsetUnset($offset)
-    {
+    public function offsetUnset($offset) {
         throw new \BadMethodCallException("Array access of class " . get_class($this) . " is read-only!");
     }
 

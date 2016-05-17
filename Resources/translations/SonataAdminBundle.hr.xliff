@@ -34,10 +34,6 @@
                 <source>btn_filter</source>
                 <target>Filtriraj</target>
             </trans-unit>
-            <trans-unit id="btn_advanced_filters">
-                <source>btn_advanced_filters</source>
-                <target>btn_advanced_filters</target>
-            </trans-unit>
             <trans-unit id="btn_update">
                 <source>btn_update</source>
                 <target>Promijeni</target>
@@ -162,10 +158,6 @@
                 <source>flash_edit_error</source>
                 <target>Došlo je do greške prilikom promjene unosa.</target>
             </trans-unit>
-            <trans-unit id="flash_lock_error">
-                <source>flash_lock_error</source>
-                <target>flash_lock_error</target>
-            </trans-unit>
             <trans-unit id='flash_batch_delete_success'>
                 <source>flash_batch_delete_success</source>
                 <target>Odabrani unosi su uspješno izbrisani.</target>
@@ -181,10 +173,6 @@
             <trans-unit id='flash_delete_success'>
                 <source>flash_delete_success</source>
                 <target>Unos je uspješno izbrisan.</target>
-            </trans-unit>
-            <trans-unit id="form_not_available">
-                <source>form_not_available</source>
-                <target>form_not_available</target>
             </trans-unit>
             <trans-unit id="link_breadcrumb_dashboard">
                 <source>breadcrumb.link_dashboard</source>
@@ -330,10 +318,6 @@
                 <source>td_username</source>
                 <target>Autor</target>
             </trans-unit>
-            <trans-unit id="td_role">
-                <source>td_role</source>
-                <target>td_role</target>
-            </trans-unit>
             <trans-unit id="label_view_revision">
                 <source>label_view_revision</source>
                 <target>Vidi reviziju</target>
@@ -342,10 +326,6 @@
                 <source>label_compare_revision</source>
                 <target>Usporedi reviziju</target>
             </trans-unit>
-            <trans-unit id="list_results_count_prefix">
-                <source>list_results_count_prefix</source>
-                <target>list_results_count_prefix</target>
-            </trans-unit>
             <trans-unit id="list_results_count">
                 <source>list_results_count</source>
                 <target>%count% rezultat|%count% rezultata|%count% rezultata</target>
@@ -353,22 +333,6 @@
             <trans-unit id="label_export_download">
                 <source>label_export_download</source>
                 <target>Preuzmi</target>
-            </trans-unit>
-            <trans-unit id="export_format_json">
-                <source>export_format_json</source>
-                <target>JSON</target>
-            </trans-unit>
-            <trans-unit id="export_format_xml">
-                <source>export_format_xml</source>
-                <target>XML</target>
-            </trans-unit>
-            <trans-unit id="export_format_csv">
-                <source>export_format_csv</source>
-                <target>CSV</target>
-            </trans-unit>
-            <trans-unit id="export_format_xls">
-                <source>export_format_xls</source>
-                <target>XLS</target>
             </trans-unit>
             <trans-unit id="loading_information">
                 <source>loading_information</source>
@@ -387,24 +351,24 @@
                 <target>Odbij</target>
             </trans-unit>
             <trans-unit id="label_per_page">
-                <source>label_per_page</source>
-                <target>Po stranici</target>
+              <source>label_per_page</source>
+              <target>Po stranici</target>
             </trans-unit>
             <trans-unit id="list_select">
-                <source>list_select</source>
-                <target>Odaberi</target>
+              <source>list_select</source>
+              <target>Odaberi</target>
             </trans-unit>
             <trans-unit id="confirm_exit">
                 <source>confirm_exit</source>
                 <target>Promjene nisu spremljene.</target>
             </trans-unit>
             <trans-unit id="link_edit_acl">
-                <source>link_edit_acl</source>
-                <target>Uredi ACL</target>
+              <source>link_edit_acl</source>
+              <target>Uredi ACL</target>
             </trans-unit>
             <trans-unit id="btn_update_acl">
-                <source>btn_update_acl</source>
-                <target>Ažuriraj ACL</target>
+              <source>btn_update_acl</source>
+              <target>Ažuriraj ACL</target>
             </trans-unit>
             <trans-unit id="flash_acl_update_success">
                 <source>flash_acl_edit_success</source>
@@ -415,8 +379,8 @@
                 <target>ACL</target>
             </trans-unit>
             <trans-unit id="short_object_description_placeholder">
-                <source>short_object_description_placeholder</source>
-                <target>Nema odabira</target>
+              <source>short_object_description_placeholder</source>
+              <target>Nema odabira</target>
             </trans-unit>
             <trans-unit id="title_search_results">
                 <source>title_search_results</source>
@@ -445,26 +409,6 @@
             <trans-unit id="message_form_group_empty">
                 <source>message_form_group_empty</source>
                 <target>Nijedno polje.</target>
-            </trans-unit>
-            <trans-unit id="link_filters">
-                <source>link_filters</source>
-                <target>link_filters</target>
-            </trans-unit>
-            <trans-unit id="stats_view_more">
-                <source>stats_view_more</source>
-                <target>stats_view_more</target>
-            </trans-unit>
-            <trans-unit id="title_select_subclass">
-                <source>title_select_subclass</source>
-                <target>title_select_subclass</target>
-            </trans-unit>
-            <trans-unit id="no_subclass_available">
-                <source>no_subclass_available</source>
-                <target>no_subclass_available</target>
-            </trans-unit>
-            <trans-unit id="label_unknown_user">
-                <source>label_unknown_user</source>
-                <target>label_unknown_user</target>
             </trans-unit>
         </body>
     </file>

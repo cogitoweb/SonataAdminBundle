@@ -24,54 +24,31 @@ use Symfony\Component\Translation\TranslatorInterface;
 
 class AdminExtractor implements ExtractorInterface, TranslatorInterface, SecurityHandlerInterface, LabelTranslatorStrategyInterface
 {
-    /**
-     * @var LoggerInterface
-     */
     private $logger;
-
-    /**
-     * @var Pool
-     */
     private $adminPool;
-
-    /**
-     * @var string|bool
-     */
     private $catalogue;
-
-    /**
-     * @var string|bool
-     */
     private $translator;
-
-    /**
-     * @var string|bool
-     */
     private $labelStrategy;
-
-    /**
-     * @var string|bool
-     */
     private $domain;
 
     /**
-     * @param Pool            $adminPool
-     * @param LoggerInterface $logger
+     * @param \Sonata\AdminBundle\Admin\Pool                    $adminPool
+     * @param \Symfony\Component\HttpKernel\Log\LoggerInterface $logger
      */
     public function __construct(Pool $adminPool, LoggerInterface $logger = null)
     {
-        $this->logger = $logger;
+        $this->logger    = $logger;
         $this->adminPool = $adminPool;
 
         // state variable
-        $this->catalogue = false;
-        $this->translator = false;
+        $this->catalogue     = false;
+        $this->translator    = false;
         $this->labelStrategy = false;
-        $this->domain = false;
+        $this->domain        = false;
     }
 
     /**
-     * @param LoggerInterface $logger
+     * @param \Symfony\Component\HttpKernel\Log\LoggerInterface $logger
      */
     public function setLogger(LoggerInterface $logger)
     {
@@ -96,9 +73,9 @@ class AdminExtractor implements ExtractorInterface, TranslatorInterface, Securit
         foreach ($this->adminPool->getAdminServiceIds() as $id) {
             $admin = $this->getAdmin($id);
 
-            $this->translator = $admin->getTranslator();
+            $this->translator    = $admin->getTranslator();
             $this->labelStrategy = $admin->getLabelTranslatorStrategy();
-            $this->domain = $admin->getTranslationDomain();
+            $this->domain        = $admin->getTranslationDomain();
 
             $admin->setTranslator($this);
             $admin->setSecurityHandler($this);
@@ -110,11 +87,11 @@ class AdminExtractor implements ExtractorInterface, TranslatorInterface, Securit
 
             // call the different public method
             $methods = array(
-                'getShow' => array(array()),
-                'getDatagrid' => array(array()),
-                'getList' => array(array()),
-                'getForm' => array(array()),
-                'getBreadcrumbs' => array(
+                'getShow'         => array(array()),
+                'getDatagrid'     => array(array()),
+                'getList'         => array(array()),
+                'getForm'         => array(array()),
+                'getBreadcrumbs'  => array(
                     array('list'),
                     array('edit'),
                     array('create'),
@@ -134,7 +111,7 @@ class AdminExtractor implements ExtractorInterface, TranslatorInterface, Securit
                         call_user_func_array(array($admin, $method), $args);
                     } catch (\Exception $e) {
                         if ($this->logger) {
-                            $this->logger->error(sprintf('ERROR : admin:%s - Raise an exception : %s', $admin->getCode(), $e->getMessage()));
+                            $this->logger->err(sprintf('ERROR : admin:%s - Raise an exception : %s', $admin->getCode(), $e->getMessage()));
                         }
 
                         throw $e;
@@ -147,6 +124,34 @@ class AdminExtractor implements ExtractorInterface, TranslatorInterface, Securit
         $this->catalogue = false;
 
         return $catalogue;
+    }
+
+    /**
+     * @param string $id
+     *
+     * @return \Sonata\AdminBundle\Admin\AdminInterface
+     */
+    private function getAdmin($id)
+    {
+        return $this->adminPool->getContainer()->get($id);
+    }
+
+    /**
+     * @param string $id
+     * @param string $domain
+     */
+    private function addMessage($id, $domain)
+    {
+        $message = new Message($id, $domain);
+
+        //        $this->logger->debug(sprintf('extract: %s - domain:%s', $id, $domain));
+
+        $trace = debug_backtrace(false);
+        if (isset($trace[1]['file'])) {
+            $message->addSource(new FileSource($trace[1]['file']));
+        }
+
+        $this->catalogue->add($message);
     }
 
     /**
@@ -231,33 +236,5 @@ class AdminExtractor implements ExtractorInterface, TranslatorInterface, Securit
         $this->addMessage($label, $this->domain);
 
         return $label;
-    }
-
-    /**
-     * @param string $id
-     *
-     * @return AdminInterface
-     */
-    private function getAdmin($id)
-    {
-        return $this->adminPool->getContainer()->get($id);
-    }
-
-    /**
-     * @param string $id
-     * @param string $domain
-     */
-    private function addMessage($id, $domain)
-    {
-        $message = new Message($id, $domain);
-
-        //        $this->logger->debug(sprintf('extract: %s - domain:%s', $id, $domain));
-
-        $trace = debug_backtrace(false);
-        if (isset($trace[1]['file'])) {
-            $message->addSource(new FileSource($trace[1]['file']));
-        }
-
-        $this->catalogue->add($message);
     }
 }

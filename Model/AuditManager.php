@@ -13,30 +13,16 @@ namespace Sonata\AdminBundle\Model;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-/**
- * Class AuditManager.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
- */
 class AuditManager implements AuditManagerInterface
 {
-    /**
-     * @var array
-     */
     protected $classes = array();
 
-    /**
-     * @var array
-     */
     protected $readers = array();
 
-    /**
-     * @var ContainerInterface
-     */
     protected $container;
 
     /**
-     * @param ContainerInterface $container
+     * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
      */
     public function __construct(ContainerInterface $container)
     {

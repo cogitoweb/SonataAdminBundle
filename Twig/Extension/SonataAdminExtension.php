@@ -13,16 +13,12 @@ namespace Sonata\AdminBundle\Twig\Extension;
 
 use Doctrine\Common\Util\ClassUtils;
 use Psr\Log\LoggerInterface;
-use Sonata\AdminBundle\Admin\AdminInterface;
 use Sonata\AdminBundle\Admin\FieldDescriptionInterface;
 use Sonata\AdminBundle\Admin\Pool;
 use Sonata\AdminBundle\Exception\NoValueException;
+use Symfony\Component\PropertyAccess\PropertyAccess;
+use Twig_Environment;
 
-/**
- * Class SonataAdminExtension.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
- */
 class SonataAdminExtension extends \Twig_Extension
 {
     /**
@@ -34,11 +30,6 @@ class SonataAdminExtension extends \Twig_Extension
      * @var LoggerInterface
      */
     protected $logger;
-
-    /**
-     * @var string[]
-     */
-    private $xEditableTypeMapping = array();
 
     /**
      * @param Pool            $pool
@@ -56,46 +47,12 @@ class SonataAdminExtension extends \Twig_Extension
     public function getFilters()
     {
         return array(
-            new \Twig_SimpleFilter(
-                'render_list_element',
-                array($this, 'renderListElement'),
-                array(
-                    'is_safe' => array('html'),
-                    'needs_environment' => true,
-                )
-            ),
-            new \Twig_SimpleFilter(
-                'render_view_element',
-                array($this, 'renderViewElement'),
-                array(
-                    'is_safe' => array('html'),
-                    'needs_environment' => true,
-                )
-            ),
-            new \Twig_SimpleFilter(
-                'render_view_element_compare',
-                array($this, 'renderViewElementCompare'),
-                array(
-                    'is_safe' => array('html'),
-                    'needs_environment' => true,
-                )
-            ),
-            new \Twig_SimpleFilter(
-                'render_relation_element',
-                array($this, 'renderRelationElement')
-            ),
-            new \Twig_SimpleFilter(
-                'sonata_urlsafeid',
-                array($this, 'getUrlsafeIdentifier')
-            ),
-            new \Twig_SimpleFilter(
-                'sonata_xeditable_type',
-                array($this, 'getXEditableType')
-            ),
-            new \Twig_SimpleFilter(
-                'sonata_xeditable_choices',
-                array($this, 'getXEditableChoices')
-            ),
+            new \Twig_SimpleFilter('render_list_element', array($this, 'renderListElement'), array('is_safe' => array('html'), 'needs_environment' => true)),
+            new \Twig_SimpleFilter('render_view_element', array($this, 'renderViewElement'), array('is_safe' => array('html'), 'needs_environment' => true)),
+            new \Twig_SimpleFilter('render_view_element_compare', array($this, 'renderViewElementCompare'), array('is_safe' => array('html'))),
+            new \Twig_SimpleFilter('render_relation_element', array($this, 'renderRelationElement')),
+            new \Twig_SimpleFilter('sonata_urlsafeid', array($this, 'getUrlsafeIdentifier')),
+            new \Twig_SimpleFilter('sonata_xeditable_type', array($this, 'getXEditableType')),
         );
     }
 
@@ -108,6 +65,31 @@ class SonataAdminExtension extends \Twig_Extension
     }
 
     /**
+     * Get template.
+     *
+     * @param FieldDescriptionInterface $fieldDescription
+     * @param string                    $defaultTemplate
+     *
+     * @return \Twig_Template
+     */
+    protected function getTemplate(FieldDescriptionInterface $fieldDescription, $defaultTemplate, Twig_Environment $environment)
+    {
+        $templateName = $fieldDescription->getTemplate() ?: $defaultTemplate;
+
+        try {
+            $template = $environment->loadTemplate($templateName);
+        } catch (\Twig_Error_Loader $e) {
+            $template = $environment->loadTemplate($defaultTemplate);
+
+            if (null !== $this->logger) {
+                $this->logger->warning(sprintf('An error occured trying to load the template "%s" for the field "%s", the default template "%s" was used instead: "%s". ', $templateName, $fieldDescription->getFieldName(), $defaultTemplate, $e->getMessage()));
+            }
+        }
+
+        return $template;
+    }
+
+    /**
      * render a list element from the FieldDescription.
      *
      * @param mixed                     $object
@@ -116,22 +98,14 @@ class SonataAdminExtension extends \Twig_Extension
      *
      * @return string
      */
-    public function renderListElement(
-        \Twig_Environment $environment,
-        $object,
-        FieldDescriptionInterface $fieldDescription,
-        $params = array()
-    ) {
-        $template = $this->getTemplate(
-            $fieldDescription,
-            $fieldDescription->getAdmin()->getTemplate('base_list_field'),
-            $environment
-        );
+    public function renderListElement(Twig_Environment $environment, $object, FieldDescriptionInterface $fieldDescription, $params = array())
+    {
+        $template = $this->getTemplate($fieldDescription, $fieldDescription->getAdmin()->getTemplate('base_list_field'), $environment);
 
         return $this->output($fieldDescription, $template, array_merge($params, array(
-            'admin' => $fieldDescription->getAdmin(),
-            'object' => $object,
-            'value' => $this->getValueFromFieldDescription($object, $fieldDescription),
+            'admin'             => $fieldDescription->getAdmin(),
+            'object'            => $object,
+            'value'             => $this->getValueFromFieldDescription($object, $fieldDescription),
             'field_description' => $fieldDescription,
         )), $environment);
     }
@@ -143,28 +117,12 @@ class SonataAdminExtension extends \Twig_Extension
      *
      * @return string
      */
-    public function output(
-        FieldDescriptionInterface $fieldDescription,
-        \Twig_Template $template,
-        array $parameters,
-        \Twig_Environment $environment
-    ) {
+    public function output(FieldDescriptionInterface $fieldDescription, \Twig_Template $template, array $parameters = array(), Twig_Environment $environment)
+    {
         $content = $template->render($parameters);
 
         if ($environment->isDebug()) {
-            $commentTemplate = <<<'EOT'
-
-<!-- START
-    fieldName: %s
-    template: %s
-    compiled template: %s
-    -->
-    %s
-<!-- END - fieldName: %s -->
-EOT;
-
-            return sprintf(
-                $commentTemplate,
+            return sprintf("\n<!-- START  \n  fieldName: %s\n  template: %s\n  compiled template: %s\n -->\n%s\n<!-- END - fieldName: %s -->",
                 $fieldDescription->getFieldName(),
                 $fieldDescription->getTemplate(),
                 $template->getTemplateName(),
@@ -188,11 +146,8 @@ EOT;
      *
      * @return mixed
      */
-    public function getValueFromFieldDescription(
-        $object,
-        FieldDescriptionInterface $fieldDescription,
-        array $params = array()
-    ) {
+    public function getValueFromFieldDescription($object, FieldDescriptionInterface $fieldDescription, array $params = array())
+    {
         if (isset($params['loop']) && $object instanceof \ArrayAccess) {
             throw new \RuntimeException('remove the loop requirement');
         }
@@ -217,16 +172,9 @@ EOT;
      *
      * @return string
      */
-    public function renderViewElement(
-        \Twig_Environment $environment,
-        FieldDescriptionInterface $fieldDescription,
-        $object
-    ) {
-        $template = $this->getTemplate(
-            $fieldDescription,
-            'SonataAdminBundle:CRUD:base_show_field.html.twig',
-            $environment
-        );
+    public function renderViewElement(Twig_Environment $environment, FieldDescriptionInterface $fieldDescription, $object)
+    {
+        $template = $this->getTemplate($fieldDescription, 'SonataAdminBundle:CRUD:base_show_field.html.twig', $environment);
 
         try {
             $value = $fieldDescription->getValue($object);
@@ -236,9 +184,9 @@ EOT;
 
         return $this->output($fieldDescription, $template, array(
             'field_description' => $fieldDescription,
-            'object' => $object,
-            'value' => $value,
-            'admin' => $fieldDescription->getAdmin(),
+            'object'            => $object,
+            'value'             => $value,
+            'admin'             => $fieldDescription->getAdmin(),
         ), $environment);
     }
 
@@ -251,17 +199,9 @@ EOT;
      *
      * @return string
      */
-    public function renderViewElementCompare(
-        \Twig_Environment $environment,
-        FieldDescriptionInterface $fieldDescription,
-        $baseObject,
-        $compareObject
-    ) {
-        $template = $this->getTemplate(
-            $fieldDescription,
-            'SonataAdminBundle:CRUD:base_show_field.html.twig',
-            $environment
-        );
+    public function renderViewElementCompare(Twig_Environment $environment, FieldDescriptionInterface $fieldDescription, $baseObject, $compareObject)
+    {
+        $template = $this->getTemplate($fieldDescription, 'SonataAdminBundle:CRUD:base_show_field.html.twig', $environment);
 
         try {
             $baseValue = $fieldDescription->getValue($baseObject);
@@ -276,15 +216,15 @@ EOT;
         }
 
         $baseValueOutput = $template->render(array(
-            'admin' => $fieldDescription->getAdmin(),
+            'admin'             => $fieldDescription->getAdmin(),
             'field_description' => $fieldDescription,
-            'value' => $baseValue,
+            'value'             => $baseValue,
         ));
 
         $compareValueOutput = $template->render(array(
             'field_description' => $fieldDescription,
-            'admin' => $fieldDescription->getAdmin(),
-            'value' => $compareValue,
+            'admin'             => $fieldDescription->getAdmin(),
+            'value'             => $compareValue,
         ));
 
         // Compare the rendered output of both objects by using the (possibly) overridden field block
@@ -292,10 +232,10 @@ EOT;
 
         return $this->output($fieldDescription, $template, array(
             'field_description' => $fieldDescription,
-            'value' => $baseValue,
-            'value_compare' => $compareValue,
-            'is_diff' => $isDiff,
-            'admin' => $fieldDescription->getAdmin(),
+            'value'             => $baseValue,
+            'value_compare'     => $compareValue,
+            'is_diff'           => $isDiff,
+            'admin'             => $fieldDescription->getAdmin(),
         ), $environment);
     }
 
@@ -317,21 +257,11 @@ EOT;
 
         if (null === $propertyPath) {
             // For BC kept associated_tostring option behavior
-            $method = $fieldDescription->getOption('associated_tostring');
-
-            if ($method) {
-                @trigger_error(
-                    'Option "associated_tostring" is deprecated since version 2.3. Use "associated_property" instead.',
-                    E_USER_DEPRECATED
-                );
-            } else {
-                $method = '__toString';
-            }
+            $method = $fieldDescription->getOption('associated_tostring', '__toString');
 
             if (!method_exists($element, $method)) {
                 throw new \RuntimeException(sprintf(
-                    'You must define an `associated_property` option or '.
-                    'create a `%s::__toString` method to the field option %s from service %s is ',
+                    'You must define an `associated_property` option or create a `%s::__toString` method to the field option %s from service %s is ',
                     get_class($element),
                     $fieldDescription->getName(),
                     $fieldDescription->getAdmin()->getCode()
@@ -341,36 +271,21 @@ EOT;
             return call_user_func(array($element, $method));
         }
 
-        if (is_callable($propertyPath)) {
-            return $propertyPath($element);
-        }
-
-        return $this->pool->getPropertyAccessor()->getValue($element, $propertyPath);
+        return PropertyAccess::createPropertyAccessor()->getValue($element, $propertyPath);
     }
 
     /**
      * Get the identifiers as a string that is save to use in an url.
      *
-     * @param object         $model
-     * @param AdminInterface $admin
+     * @param object $model
      *
      * @return string string representation of the id that is save to use in an url
      */
-    public function getUrlsafeIdentifier($model, AdminInterface $admin = null)
+    public function getUrlsafeIdentifier($model)
     {
-        if (is_null($admin)) {
-            $admin = $this->pool->getAdminByClass(ClassUtils::getClass($model));
-        }
+        $admin = $this->pool->getAdminByClass(ClassUtils::getClass($model));
 
         return $admin->getUrlsafeIdentifier($model);
-    }
-
-    /**
-     * @param string[] $xEditableTypeMapping
-     */
-    public function setXEditableTypeMapping($xEditableTypeMapping)
-    {
-        $this->xEditableTypeMapping = $xEditableTypeMapping;
     }
 
     /**
@@ -380,60 +295,21 @@ EOT;
      */
     public function getXEditableType($type)
     {
-        return isset($this->xEditableTypeMapping[$type]) ? $this->xEditableTypeMapping[$type] : false;
-    }
+        $mapping = array(
+            'boolean'    => 'select',
+            'text'       => 'text',
+            'textarea'   => 'textarea',
+            'email'      => 'email',
+            'string'     => 'text',
+            'smallint'   => 'text',
+            'bigint'     => 'text',
+            'integer'    => 'number',
+            'decimal'    => 'number',
+            'currency'   => 'number',
+            'percent'    => 'number',
+            'url'        => 'url',
+        );
 
-    /**
-     * Return xEditable choices based on the field description choices options & catalogue options.
-     * With the following choice options:
-     *     ['Status1' => 'Alias1', 'Status2' => 'Alias2']
-     * The method will return:
-     *     [['value' => 'Status1', 'text' => 'Alias1'], ['value' => 'Status2', 'text' => 'Alias2']].
-     *
-     * @param FieldDescriptionInterface $fieldDescription
-     *
-     * @return array
-     */
-    public function getXEditableChoices(FieldDescriptionInterface $fieldDescription)
-    {
-        $choices = $fieldDescription->getOption('choices', array());
-        $catalogue = $fieldDescription->getOption('catalogue');
-        $xEditableChoices = array();
-        if (!empty($choices)) {
-            reset($choices);
-            $first = current($choices);
-            // the choices are already in the right format
-            if (is_array($first) && array_key_exists('value', $first) && array_key_exists('text', $first)) {
-                $xEditableChoices = $choices;
-            } else {
-                foreach ($choices as $value => $text) {
-                    $text = $catalogue ? $fieldDescription->getAdmin()->trans($text, array(), $catalogue) : $text;
-                    $xEditableChoices[] = array(
-                        'value' => $value,
-                        'text' => $text,
-                    );
-                }
-            }
-        }
-
-        return $xEditableChoices;
-    }
-
-    /**
-     * Get template.
-     *
-     * @param FieldDescriptionInterface $fieldDescription
-     * @param string                    $defaultTemplate
-     *
-     * @return \Twig_Template
-     */
-    protected function getTemplate(
-        FieldDescriptionInterface $fieldDescription,
-        $defaultTemplate,
-        \Twig_Environment $environment
-    ) {
-        $templateName = $fieldDescription->getTemplate() ?: $defaultTemplate;
-
-        return $environment->loadTemplate($templateName);
+        return isset($mapping[$type]) ? $mapping[$type] : false;
     }
 }

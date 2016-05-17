@@ -9,9 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Sonata\AdminBundle\Tests\Model;
-
-use Sonata\AdminBundle\Model\AuditManager;
+namespace Sonata\AdminBundle\Model;
 
 /**
  * Test for AuditManager.
@@ -33,9 +31,11 @@ class AuditManagerTest extends \PHPUnit_Framework_TestCase
                 switch ($id) {
                     case 'foo_reader':
                         return $fooReader;
+                        break;
 
                     case 'bar_reader':
                         return $barReader;
+                        break;
                 }
 
                 return;

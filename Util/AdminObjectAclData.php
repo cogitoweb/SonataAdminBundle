@@ -12,7 +12,6 @@
 namespace Sonata\AdminBundle\Util;
 
 use Sonata\AdminBundle\Admin\AdminInterface;
-use Sonata\AdminBundle\Security\Handler\SecurityHandlerInterface;
 use Symfony\Component\Form\Form;
 use Symfony\Component\Security\Acl\Domain\Acl;
 
@@ -27,65 +26,60 @@ class AdminObjectAclData
      * @var array Permissions managed only by a OWNER
      */
     protected static $ownerPermissions = array('MASTER', 'OWNER');
-
     /**
-     * @var AdminInterface
+     * @var \Sonata\AdminBundle\Admin\AdminInterface
      */
     protected $admin;
-
     /**
      * @var mixed
      */
     protected $object;
-
     /**
-     * @var \Traversable Users to set ACL for
+     * @var array Users to set ACL for
      */
     protected $aclUsers;
-
-    /**
-     * @var \Traversable Roles to set ACL for
-     */
-    protected $aclRoles;
-
     /**
      * @var array Cache of masks
      */
     protected $masks;
-
     /**
-     * @var Form
+     * @var \Symfony\Component\Form\Form
      */
-    protected $aclUsersForm;
-
+    protected $form;
     /**
-     * @var Form
-     */
-    protected $aclRolesForm;
-
-    /**
-     * @var Acl
+     * @var \Symfony\Component\Security\Acl\Domain\Acl
      */
     protected $acl;
-
     /**
      * @var string
      */
     protected $maskBuilderClass;
 
     /**
-     * @param AdminInterface    $admin
-     * @param mixed             $object
-     * @param \Traversable      $aclUsers
-     * @param string            $maskBuilderClass
-     * @param \Traversable|null $aclRoles
+     * Cache masks.
      */
-    public function __construct(AdminInterface $admin, $object, \Traversable $aclUsers, $maskBuilderClass, \Traversable $aclRoles = null)
+    protected function updateMasks()
+    {
+        $permissions = $this->getPermissions();
+
+        $reflectionClass = new \ReflectionClass(new $this->maskBuilderClass());
+        $this->masks = array();
+        foreach ($permissions as $permission) {
+            $this->masks[$permission] = $reflectionClass->getConstant('MASK_'.$permission);
+        }
+    }
+
+    /**
+     * @param \Sonata\AdminBundle\Admin\AdminInterface $admin
+     * @param mixed                                    $object
+     * @param \Traversable                             $aclUsers
+     * @param string                                   $maskBuilderClass
+     */
+    public function __construct(AdminInterface $admin, $object, \Traversable $aclUsers, $maskBuilderClass)
     {
         $this->admin = $admin;
         $this->object = $object;
         $this->aclUsers = $aclUsers;
-        $this->aclRoles = (null === $aclRoles) ? new \ArrayIterator() : $aclRoles;
         $this->maskBuilderClass = $maskBuilderClass;
 
         $this->updateMasks();
@@ -94,7 +88,7 @@ class AdminObjectAclData
     /**
      * Gets admin.
      *
-     * @return AdminInterface
+     * @return \Sonata\AdminBundle\Admin\AdminInterface
      */
     public function getAdmin()
     {
@@ -114,7 +108,7 @@ class AdminObjectAclData
     /**
      * Gets ACL users.
      *
-     * @return \Traversable
+     * @return array
      */
     public function getAclUsers()
     {
@@ -122,21 +116,11 @@ class AdminObjectAclData
     }
 
     /**
-     * Gets ACL roles.
-     *
-     * @return \Traversable
-     */
-    public function getAclRoles()
-    {
-        return $this->aclRoles;
-    }
-
-    /**
      * Sets ACL.
      *
-     * @param Acl $acl
+     * @param \Symfony\Component\Security\Acl\Domain\Acl $acl
      *
-     * @return AdminObjectAclData
+     * @return \Sonata\AdminBundle\Util\AdminObjectAclData
      */
     public function setAcl(Acl $acl)
     {
@@ -148,7 +132,7 @@ class AdminObjectAclData
     /**
      * Gets ACL.
      *
-     * @return Acl
+     * @return \Symfony\Component\Security\Acl\Domain\Acl
      */
     public function getAcl()
     {
@@ -168,79 +152,25 @@ class AdminObjectAclData
     /**
      * Sets form.
      *
-     * @param Form $form
+     * @param \Symfony\Component\Form\Form $form
      *
-     * @return AdminObjectAclData
-     *
-     * @deprecated Deprecated since version 3.0. Use setAclUsersForm() instead.
+     * @return \Sonata\AdminBundle\Util\AdminObjectAclData
      */
     public function setForm(Form $form)
     {
-        trigger_error('setForm() is deprecated since version 3.0. Use setAclUsersForm() instead.', E_USER_DEPRECATED);
+        $this->form = $form;
 
-        return $this->setAclUsersForm($form);
+        return $this;
     }
 
     /**
      * Gets form.
      *
-     * @return Form
-     *
-     * @deprecated Deprecated since version 3.0. Use getAclUsersForm() instead.
+     * @return \Symfony\Component\Form\Form
      */
     public function getForm()
     {
-        trigger_error('getForm() is deprecated since version 3.0. Use getAclUsersForm() instead.', E_USER_DEPRECATED);
-
-        return $this->getAclUsersForm();
-    }
-
-    /**
-     * Sets ACL users form.
-     *
-     * @param Form $form
-     *
-     * @return AdminObjectAclData
-     */
-    public function setAclUsersForm(Form $form)
-    {
-        $this->aclUsersForm = $form;
-
-        return $this;
-    }
-
-    /**
-     * Gets ACL users form.
-     *
-     * @return Form
-     */
-    public function getAclUsersForm()
-    {
-        return $this->aclUsersForm;
-    }
-
-    /**
-     * Sets ACL roles form.
-     *
-     * @param Form $form
-     *
-     * @return AdminObjectAclData
-     */
-    public function setAclRolesForm(Form $form)
-    {
-        $this->aclRolesForm = $form;
-
-        return $this;
-    }
-
-    /**
-     * Gets ACL roles form.
-     *
-     * @return Form
-     */
-    public function getAclRolesForm()
-    {
-        return $this->aclRolesForm;
+        return $this->form;
     }
 
     /**
@@ -288,32 +218,10 @@ class AdminObjectAclData
     /**
      * Gets security handler.
      *
-     * @return SecurityHandlerInterface
+     * @return \Sonata\AdminBundle\Security\Handler\SecurityHandlerInterface
      */
     public function getSecurityHandler()
     {
         return $this->admin->getSecurityHandler();
-    }
-
-    /**
-     * @return array
-     */
-    public function getSecurityInformation()
-    {
-        return $this->admin->getSecurityHandler()->buildSecurityInformation($this->admin);
-    }
-
-    /**
-     * Cache masks.
-     */
-    protected function updateMasks()
-    {
-        $permissions = $this->getPermissions();
-
-        $reflectionClass = new \ReflectionClass(new $this->maskBuilderClass());
-        $this->masks = array();
-        foreach ($permissions as $permission) {
-            $this->masks[$permission] = $reflectionClass->getConstant('MASK_'.$permission);
-        }
     }
 }

@@ -12,21 +12,44 @@
 namespace Sonata\AdminBundle\Controller;
 
 use Sonata\AdminBundle\Admin\AdminInterface;
-use Sonata\AdminBundle\Admin\Pool;
-use Sonata\AdminBundle\Search\SearchHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * Class CoreController.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
- */
 class CoreController extends Controller
 {
+    /**
+     * @return \Sonata\AdminBundle\Admin\Pool
+     */
+    protected function getAdminPool()
+    {
+        return $this->container->get('sonata.admin.pool');
+    }
+
+    /**
+     * @return \Sonata\AdminBundle\Search\SearchHandler
+     */
+    protected function getSearchHandler()
+    {
+        return $this->get('sonata.admin.search.handler');
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return string
+     */
+    protected function getBaseTemplate()
+    {
+        if ($this->getRequest()->isXmlHttpRequest()) {
+            return $this->getAdminPool()->getTemplate('ajax');
+        }
+
+        return $this->getAdminPool()->getTemplate('layout');
+    }
+
     /**
      * @param Request $request
      *
@@ -35,10 +58,10 @@ class CoreController extends Controller
     public function dashboardAction()
     {
         $blocks = array(
-            'top' => array(),
-            'left' => array(),
+            'top'    => array(),
+            'left'   => array(),
             'center' => array(),
-            'right' => array(),
+            'right'  => array(),
             'bottom' => array(),
         );
 
@@ -47,9 +70,9 @@ class CoreController extends Controller
         }
 
         return $this->render($this->getAdminPool()->getTemplate('dashboard'), array(
-            'base_template' => $this->getBaseTemplate(),
-            'admin_pool' => $this->container->get('sonata.admin.pool'),
-            'blocks' => $blocks,
+            'base_template'   => $this->getBaseTemplate(),
+            'admin_pool'      => $this->container->get('sonata.admin.pool'),
+            'blocks'          => $blocks,
         ));
     }
 
@@ -84,16 +107,16 @@ class CoreController extends Controller
                 foreach ($pager->getResults() as $result) {
                     $results[] = array(
                         'label' => $admin->toString($result),
-                        'link' => $admin->generateObjectUrl('edit', $result),
-                        'id' => $admin->id($result),
+                        'link'  => $admin->generateObjectUrl('edit', $result),
+                        'id'    => $admin->id($result),
                     );
                 }
             }
 
             $response = new JsonResponse(array(
                 'results' => $results,
-                'page' => $pager ? (int) $pager->getPage() : false,
-                'total' => $pager ? (int) $pager->getNbResults() : false,
+                'page'    => $pager ? (int) $pager->getPage() : false,
+                'total'   => $pager ? (int) $pager->getNbResults() : false,
             ));
             $response->setPrivate();
 
@@ -102,9 +125,9 @@ class CoreController extends Controller
 
         return $this->render($this->container->get('sonata.admin.pool')->getTemplate('search'), array(
             'base_template' => $this->getBaseTemplate(),
-            'admin_pool' => $this->container->get('sonata.admin.pool'),
-            'query' => $request->get('q'),
-            'groups' => $this->getAdminPool()->getDashboardGroups(),
+            'admin_pool'    => $this->container->get('sonata.admin.pool'),
+            'query'         => $request->get('q'),
+            'groups'        => $this->getAdminPool()->getDashboardGroups(),
         ));
     }
 
@@ -114,7 +137,7 @@ class CoreController extends Controller
      * This method is compatible with both Symfony 2.3 and Symfony 3
      *
      * @deprecated Use the Request action argument. This method will be removed
-     *             in SonataAdminBundle 4.0 and the action methods adjusted.
+     *             in SonataAdminBundle 3.0 and the action methods adjusted.
      *
      * @return Request
      */
@@ -125,35 +148,5 @@ class CoreController extends Controller
         }
 
         return $this->container->get('request');
-    }
-
-    /**
-     * @return Pool
-     */
-    protected function getAdminPool()
-    {
-        return $this->container->get('sonata.admin.pool');
-    }
-
-    /**
-     * @return SearchHandler
-     */
-    protected function getSearchHandler()
-    {
-        return $this->get('sonata.admin.search.handler');
-    }
-
-    /**
-     * @param Request $request
-     *
-     * @return string
-     */
-    protected function getBaseTemplate()
-    {
-        if ($this->getRequest()->isXmlHttpRequest()) {
-            return $this->getAdminPool()->getTemplate('ajax');
-        }
-
-        return $this->getAdminPool()->getTemplate('layout');
     }
 }

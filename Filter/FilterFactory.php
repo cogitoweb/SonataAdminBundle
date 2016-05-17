@@ -13,35 +13,30 @@ namespace Sonata\AdminBundle\Filter;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-/**
- * Class FilterFactory.
- *
- * @author  Thomas Rabaix <thomas.rabaix@sonata-project.org>
- */
 class FilterFactory implements FilterFactoryInterface
 {
-    /**
-     * @var ContainerInterface
-     */
     protected $container;
 
-    /**
-     * @var string[]
-     */
     protected $types;
 
     /**
-     * @param ContainerInterface $container
-     * @param string[]           $types
+     * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
+     * @param array                                                     $types
      */
     public function __construct(ContainerInterface $container, array $types = array())
     {
         $this->container = $container;
-        $this->types = $types;
+        $this->types     = $types;
     }
 
     /**
-     * {@inheritdoc}
+     * @throws \RunTimeException
+     *
+     * @param string $name
+     * @param string $type
+     * @param array  $options
+     *
+     * @return \Sonata\AdminBundle\Filter\FilterInterface
      */
     public function create($name, $type, array $options = array())
     {
