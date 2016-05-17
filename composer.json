@@ -59,7 +59,7 @@
     },
     "extra": {
         "branch-alias": {
-            "cogitoweb": "2.3.10"
+            "dev-cogitoweb": "2.3.10"
         }
     }
 }
