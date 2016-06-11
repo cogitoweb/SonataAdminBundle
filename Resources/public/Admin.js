@@ -45,6 +45,9 @@ var Admin = {
         Admin.setup_form_tabs_for_errors(subject);
         Admin.setup_inline_form_errors(subject);
 //        Admin.setup_list_modal(subject);
+
+		// Cogitoweb
+		Admin.setup_datetimepicker(subject);
     },
     setup_list_modal: function(modal) {
         // this will force relation modal to open list of entity in a wider modal
@@ -385,5 +388,19 @@ var Admin = {
 
             errors.show();
         }
-    }
+    },
+
+	/**
+	 * Setup Bootstrap Datetimepicker
+	 */
+	setup_datetimepicker: function (subject) {
+		$('.datepicker').datetimepicker({
+			language : window.CURRENT_LOCALE,
+			pickTime : false
+		});
+
+		$('.datetimepicker').datetimepicker({
+			language : window.CURRENT_LOCALE
+		});
+	}
 };
