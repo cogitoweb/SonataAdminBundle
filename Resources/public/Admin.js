@@ -394,12 +394,12 @@ var Admin = {
 	 * Setup Bootstrap Datetimepicker
 	 */
 	setup_datetimepicker: function (subject) {
-		$('.datepicker').datetimepicker({
+		$('input.datepicker').datetimepicker({
 			language : window.CURRENT_LOCALE,
 			pickTime : false
 		});
 
-		$('.datetimepicker').datetimepicker({
+		$('input.datetimepicker').datetimepicker({
 			language : window.CURRENT_LOCALE
 		});
 	}
